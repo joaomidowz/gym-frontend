@@ -5,7 +5,7 @@ export async function createExercise(
   exercise: {
     name: string;
     description?: string;
-    is_global?: string;
+    is_global?: boolean;
   }
 ) {
   const res = await fetch(`${API_URL}/exercises`, {
@@ -19,7 +19,7 @@ export async function createExercise(
   const data = await res.json();
 
   if (!res.ok)
-    throw new Error(data.error || data.message || "Erro ao criar exerício");
+    throw new Error(data.error || data.message || "Erro ao criar exercício");
 
   return data;
 }
@@ -38,6 +38,23 @@ export async function getExercises(token: string) {
 
   return data;
 }
+
+export async function deleteExercise(exerciseId: number, token: string) {
+    const res = await fetch(`${API_URL}/exercises/${exerciseId}`, {
+      method: "DELETE",
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
+    });
+  
+    if (!res.ok) {
+      const data = await res.json();
+      throw new Error(data.error || data.message || "Erro ao deletar exercício");
+    }
+  
+    return true;
+  }
+  
 
 export async function getExercisesById(id: number, token: string) {
     const res = await fetch(`${API_URL}/exercises/${id}`, {
