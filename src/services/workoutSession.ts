@@ -70,18 +70,43 @@ export async function getWorkoutSessionById(sessionId: number, token: string) {
 }
 
 export async function deleteWorkoutSession(sessionId: number, token: string) {
-    const res = await fetch(`${API_URL}/workout-session/${sessionId}`, {
-      method: "DELETE",
-      headers: {
-        Authorization: `Bearer ${token}`,
-      },
-    });
-  
-    if (!res.ok) {
-      const data = await res.json();
-      throw new Error(data.error || data.message || "Erro ao deletar sessão");
-    }
-  
-    return true;
+  const res = await fetch(`${API_URL}/workout-session/${sessionId}`, {
+    method: "DELETE",
+    headers: {
+      Authorization: `Bearer ${token}`,
+    },
+  });
+
+  if (!res.ok) {
+    const data = await res.json();
+    throw new Error(data.error || data.message || "Erro ao deletar sessão");
   }
-  
+
+  return true;
+}
+
+export async function updateWorkoutSession(
+  sessionId: number,
+  token: string,
+  updates: {
+    title?: string;
+    date?: string;
+    is_public?: boolean;
+  }
+) {
+  const res = await fetch(`${API_URL}/workout-session/${sessionId}`, {
+    method: "PUT",
+    headers: {
+      "Content-Type": "application/json",
+      Authorization: `Bearer ${token}`,
+    },
+    body: JSON.stringify(updates),
+  });
+
+  const data = await res.json();
+
+  if (!res.ok)
+    throw new Error(data.error || data.message || "Erro ao atualizar sessão");
+
+  return data;
+}
