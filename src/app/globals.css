@@ -4,6 +4,7 @@
   --background: #E8E8F9;
   --foreground: #171717;
   --primary: #524BE0;
+  --secundary: #E8E8F9;
   --white: #ffffff;
   --font-body: 'Atkinson Hyperlegible', sans-serif;
 }
@@ -21,6 +22,7 @@
   --color-background: var(--background);
   --color-foreground: var(--foreground);
   --color-primary: var(--primary);
+  --color-secundary: var(--secundary);
   --color-white: var(--white);
   --font-sans: var(--font-body);
 }
