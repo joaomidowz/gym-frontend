@@ -97,3 +97,17 @@ export async function updateExercise(
 
   return data;
 }
+
+export async function searchExercise(query: string, token: string) {
+  const res = await fetch(`${API_URL}/exercises/search?query=${query}`, {
+    headers: {
+      Authorization: `Bearer ${token}`,
+    },
+  });
+
+  const data = await res.json();
+
+  if (!res.ok) throw new Error(data.error || 'Erro ao buscar exercícios');
+
+  return data;
+}

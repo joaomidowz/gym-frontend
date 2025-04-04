@@ -110,3 +110,17 @@ export async function updateWorkoutSession(
 
   return data;
 }
+
+export async function searchSession(query: string, token: string) {
+  const res = await fetch(`${API_URL}/workout-session/search?query=${query}`, {
+    headers: {
+      Authorization: `Bearer ${token}`,
+    },
+  });
+
+  const data = await res.json();
+
+  if (!res.ok) throw new Error(data.error || 'Erro ao buscar usuário');
+
+  return data;
+}
