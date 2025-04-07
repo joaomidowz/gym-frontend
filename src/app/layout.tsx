@@ -2,6 +2,7 @@
 import "./globals.css";
 import { Metadata } from "next";
 import { AuthProvider } from "@/contexts/AuthContext"; // importa o provider
+import BottomNav from "@/components/bottomNav";
 
 export const metadata: Metadata = {
   title: "Gym App",
@@ -20,6 +21,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
       <body>
         <AuthProvider>
           {children}
+        <BottomNav />
         </AuthProvider>
       </body>
     </html>

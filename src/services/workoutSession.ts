@@ -24,6 +24,19 @@ export async function createWorkout(
   return data;
 }
 
+export async function getFeed(token: string) {
+  const res = await fetch(`${API_URL}/feed`, {
+    headers: {
+      Authorization: `Bearer ${token}`,
+    },
+  });
+  const data = await res.json();
+
+  if (!res.ok) throw new Error(data.error || "Erro ao carregar feed");
+
+  return data;
+}
+
 export async function getMyWorkoutSession(token: string) {
   const res = await fetch(`${API_URL}/workout-session`, {
     method: "GET",
@@ -120,7 +133,7 @@ export async function searchSession(query: string, token: string) {
 
   const data = await res.json();
 
-  if (!res.ok) throw new Error(data.error || 'Erro ao buscar usuário');
+  if (!res.ok) throw new Error(data.error || "Erro ao buscar usuário");
 
   return data;
 }
