@@ -1,11 +1,23 @@
 import { API_URL } from "./api";
 
+export const muscleGroups = [
+  "Peito",
+  "Costas",
+  "Bíceps",
+  "Tríceps",
+  "Pernas",
+  "Ombros",
+  "Core",
+  "Outros",
+];
+
 export async function createExercise(
   token: string,
   exercise: {
     name: string;
     description?: string;
     is_global?: boolean;
+    muscle_group: string;
   }
 ) {
   const res = await fetch(`${API_URL}/exercises`, {
@@ -34,7 +46,7 @@ export async function getExercises(token: string) {
   const data = await res.json();
 
   if (!res.ok)
-    throw new Error(data.error || data.message || "Erro ao buscar exerício");
+    throw new Error(data.error || data.message || "Erro ao buscar exercício");
 
   return data;
 }
@@ -65,7 +77,7 @@ export async function getExercisesById(id: number, token: string) {
   const data = await res.json();
 
   if (!res.ok)
-    throw new Error(data.error || data.message || "Erro ao buscar exerício");
+    throw new Error(data.error || data.message || "Erro ao buscar exercício");
 
   return data;
 }
@@ -77,6 +89,7 @@ export async function updateExercise(
     name?: string;
     description?: string;
     is_global?: boolean;
+    muscle_group?: string;
   }
 ) {
   const res = await fetch(`${API_URL}/exercises/${id}`, {
@@ -107,7 +120,7 @@ export async function searchExercise(query: string, token: string) {
 
   const data = await res.json();
 
-  if (!res.ok) throw new Error(data.error || 'Erro ao buscar exercícios');
+  if (!res.ok) throw new Error(data.error || "Erro ao buscar exercícios");
 
   return data;
 }

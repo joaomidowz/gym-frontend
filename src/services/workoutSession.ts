@@ -4,6 +4,7 @@ export async function createWorkout(
   token: string,
   session: {
     title: string;
+    notes?: string;
     date?: string;
     is_public?: boolean;
   }

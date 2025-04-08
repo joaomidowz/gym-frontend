@@ -1,13 +1,12 @@
 import { API_URL } from "./api";
 
-export async function addExerciseToWorkout(
+const setTypes = ["Warmup", "Feeder", "Work", "Top"];
+
+export async function createWorkoutExercise(
   token: string,
-  workout: {
-    session_id: number;
+  data: {
+    workout_session_id: number;
     exercise_id: number;
-    weight: number;
-    reps: number;
-    sets: number;
   }
 ) {
   const res = await fetch(`${API_URL}/workout-exercise`, {
@@ -16,12 +15,83 @@ export async function addExerciseToWorkout(
       "Content-Type": "application/json",
       Authorization: `Bearer ${token}`,
     },
-    body: JSON.stringify(workout),
+    body: JSON.stringify(data),
   });
+
+  const contentType = res.headers.get("content-type");
+
+  if (contentType && contentType.includes("application/json")) {
+    const result = await res.json();
+
+    if (!res.ok) {
+      throw new Error(
+        result.error || result.message || "Erro ao criar exercício na sessão"
+      );
+    }
+
+    return result;
+  } else {
+    const errorText = await res.text();
+    console.error("Resposta inesperada:", errorText);
+    throw new Error("Resposta inesperada do servidor. Veja o console.");
+  }
+}
+
+export async function createWorkoutSet(
+  token: string,
+  data: {
+    workout_exercise_id: number;
+    workout_session_id: Number;
+    weight: number;
+    reps: number;
+    set_type: string;
+    order: number;
+  }
+) {
+  const res = await fetch(
+    `${API_URL}/workout-set/${data.workout_exercise_id}`,
+    {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${token}`,
+      },
+      body: JSON.stringify(data),
+    }
+  );
+
+  const result = await res.json();
+
+  if (!res.ok) {
+    throw new Error(result.error || result.message || "Erro ao criar set");
+  }
+
+  return result;
+}
+
+export async function updateWorkoutSet(
+  token: string,
+  setId: number,
+  updates: {
+    reps?: number;
+    weight?: number;
+    set_type?: string;
+    order?: number;
+  }
+) {
+  const res = await fetch(`${API_URL}/workout-set/${setId}`, {
+    method: "PUT",
+    headers: {
+      "Content-Type": "application/json",
+      Authorization: `Bearer ${token}`,
+    },
+    body: JSON.stringify(updates),
+  });
+
   const data = await res.json();
 
   if (!res.ok)
-    throw new Error(data.error || data.message || "Erro ao criar exercício");
+    throw new Error(data.error || data.message || "Erro ao atualizar set");
 
   return data;
 }
@@ -33,6 +103,7 @@ export async function getWorkoutExercises(token: string) {
       Authorization: `Bearer ${token}`,
     },
   });
+
   const data = await res.json();
 
   if (!res.ok)
@@ -78,13 +149,11 @@ export async function deleteWorkoutExercise(exerciseId: number, token: string) {
   return true;
 }
 
-export async function updateWorkout(
+export async function updateWorkoutExercise(
   workoutId: number,
   token: string,
   updates: {
-    weight?: number;
-    reps?: number;
-    sets?: number;
+    exercise_id?: number;
   }
 ) {
   const res = await fetch(`${API_URL}/workout-exercise/${workoutId}`, {
@@ -100,7 +169,7 @@ export async function updateWorkout(
 
   if (!res.ok)
     throw new Error(
-      data.error || data.message || "Erro ao atualizar exercício"
+      data.error || data.message || "Erro ao atualizar exercício da sessão"
     );
 
   return data;

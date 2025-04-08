@@ -41,7 +41,7 @@ export default function FeedPage() {
             <nav className="flex items-center justify-between p-4 pb-2">
                 <h1 className="text-2xl text-primary font-bold">Minhas Sessões</h1>
                 <button
-                    onClick={() => router.push("/create-session")}
+                    onClick={() => router.push("sessions/create-session")}
                     className="bg-primary text-white text-sm sm:text-base px-4 py-2 rounded-2xl hover:bg-primary/80 transition"
                 >
                     Criar sessão
@@ -55,7 +55,7 @@ export default function FeedPage() {
                     <p className="text-gray-500">Nenhuma sessão encontrada.</p>
                 )}
                 {sessions.map((session: any, index) => (
-                    <Link href={`/session/${session.id}`} key={session.id}>
+                    <Link href={`/sessions/${session.id}/edit`} key={session.id}>
                         <motion.div
                             key={session.id}
                             initial={{ opacity: 0, y: 10 }}
