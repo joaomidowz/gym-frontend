@@ -2,7 +2,7 @@ import { FaWeightHanging, FaListUl, FaUser } from "react-icons/fa";
 
 type Props = {
   title: string;
-  user: {
+  user?: {
     id: number;
     name: string;
     is_public: boolean;
@@ -27,7 +27,7 @@ export default function SessionCard({
         <h2 className="text-lg font-bold">{title}</h2>
         <div className="text-sm flex items-center gap-1">
           <FaUser className="text-xs" />
-          <span>{user.name}</span>
+          <span>{user?.name || "Desconhecido"}</span>
         </div>
       </div>
 

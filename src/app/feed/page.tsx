@@ -44,7 +44,7 @@ export default function FeedPage() {
                     <SessionCard
                         key={session.id}
                         title={session.title}
-                        user={session.owner} // <-- mudamos para 'owner' aqui
+                        user={session.user}
                         like_count={session.like_count}
                         comments_count={session.comments_count}
                         total_sets={session.total_sets}
