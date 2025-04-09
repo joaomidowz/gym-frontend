@@ -138,3 +138,18 @@ export async function searchSession(query: string, token: string) {
 
   return data;
 }
+
+export async function getSessionsByUserId(userId: number, token: string) {
+  const res = await fetch(`${API_URL}/workout-session/user/${userId}`, {
+    headers: {
+      Authorization: `Bearer ${token}`,
+    },
+  });
+
+  const data = await res.json();
+
+  if (!res.ok)
+    throw new Error(data.error || data.message || "Erro ao buscar sessões do usuário");
+
+  return data;
+}

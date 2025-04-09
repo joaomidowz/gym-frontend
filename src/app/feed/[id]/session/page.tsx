@@ -6,25 +6,31 @@ import { getToken } from "@/utils/storage";
 import { getWorkoutExercisesByWorkoutId } from "@/services/workoutExercise";
 import { getExercises } from "@/services/exercises";
 import { motion } from "framer-motion";
-import SessionComments from "@/components/sessionComments";
+import { getWorkoutSessionById } from "@/services/workoutSession";
+import Link from "next/link";
+
+
 
 export default function ViewSessionPage() {
   const { id: sessionId } = useParams();
   const router = useRouter();
   const [exercises, setExercises] = useState<any[]>([]);
   const [exerciseOptions, setExerciseOptions] = useState<any[]>([]);
+  const [owner, setOwner] = useState<{ id: number; name: string } | null>(null);
 
   useEffect(() => {
     const fetchData = async () => {
       const token = getToken();
       if (!token || !sessionId) return;
 
-      const [exerciseRes, workoutRes] = await Promise.all([
+      const [exerciseRes, workoutRes, sessionRes] = await Promise.all([
         getExercises(token),
         getWorkoutExercisesByWorkoutId(Number(sessionId), token),
+        getWorkoutSessionById(Number(sessionId), token),
       ]);
 
-      setExerciseOptions(exerciseRes);
+      setOwner(sessionRes.owner);
+
 
       const formatted = workoutRes.map((item: any) => ({
         id: item.id,
@@ -33,15 +39,32 @@ export default function ViewSessionPage() {
       }));
 
       setExercises(formatted);
+      console.log("sessionRes", sessionRes);
     };
 
     fetchData();
   }, [sessionId]);
 
+
+
+
   return (
     <div className="flex flex-col items-center p-6 max-w-md mx-auto text-primary pb-32">
-      <div className="w-full flex items-center justify-between mb-4">
-        <h1 className="text-2xl font-bold">Visualizar Sessão</h1>
+      <div className="w-full flex justify-between items-start mb-4">
+        <div>
+          <h1 className="text-2xl font-bold">Visualizar Sessão</h1>
+          {owner && (
+            <p className="text-sm text-gray-500">
+              Sessão de{" "}
+              <Link
+                href={`/profile/${owner.id}/user`}
+                className="text-primary font-semibold hover:underline"
+              >
+                {owner.name}
+              </Link>
+            </p>
+          )}
+        </div>
         <button
           onClick={() => router.back()}
           className="text-sm px-3 py-1 rounded-xl bg-gray-200 hover:bg-gray-300 transition"
@@ -89,7 +112,7 @@ export default function ViewSessionPage() {
           </motion.div>
         ))}
       </div>
-      <SessionComments sessionId={Number(sessionId)} />
+
     </div>
   );
 }

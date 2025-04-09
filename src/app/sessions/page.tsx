@@ -13,7 +13,7 @@ export default function SessionPage() {
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState("");
     const [isModalOpen, setIsModalOpen] = useState(false);
-    const [sessionToDelete, setSessionToDelete] = useState<number | null>(null); 
+    const [sessionToDelete, setSessionToDelete] = useState<number | null>(null);
     const router = useRouter();
 
     useEffect(() => {
@@ -45,9 +45,9 @@ export default function SessionPage() {
         if (!token) return;
 
         try {
-            await deleteWorkoutSession(sessionToDelete, token); 
-            setSessions((prev) => prev.filter((session: any) => session.id !== sessionToDelete)); 
-            setIsModalOpen(false); 
+            await deleteWorkoutSession(sessionToDelete, token);
+            setSessions((prev) => prev.filter((session: any) => session.id !== sessionToDelete));
+            setIsModalOpen(false);
         } catch (err) {
             console.error("Erro ao excluir a sessão:", err);
         }
@@ -89,13 +89,14 @@ export default function SessionPage() {
                         transition={{ delay: index * 0.05 }}
                     >
                         <SessionCardSessions
+                            id={session.id}
                             title={session.title}
                             user={session.user}
                             like_count={session.like_count}
                             comments_count={session.comments_count}
                             total_sets={session.total_sets}
                             total_weight={session.total_weight}
-                            onDelete={() => openModal(session.id)} 
+                            onDelete={() => openModal(session.id)}
                         />
                     </motion.div>
                 ))}

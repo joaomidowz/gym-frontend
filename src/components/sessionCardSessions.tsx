@@ -1,6 +1,8 @@
+import { useRouter } from "next/navigation";
 import { FaWeightHanging, FaListUl, FaUser, FaHeart } from "react-icons/fa";
 
 type Props = {
+  id: number;
   title: string;
   user?: {
     id: number;
@@ -17,6 +19,7 @@ type Props = {
 };
 
 export default function SessionCardSessions({
+  id,
   title,
   user,
   like_count,
@@ -28,8 +31,18 @@ export default function SessionCardSessions({
   isLiked,
 }: Props) {
 
+  const router = useRouter();
+
+  const handleOpen = () => {
+    router.push(`/sessions/${id}/edit`);
+  };
+
+
   return (
-    <div className="relative bg-white border border-primary rounded-xl p-4 shadow mb-4 text-primary">
+    <div
+      onClick={handleOpen}
+      className="relative bg-white border border-primary rounded-xl p-4 shadow mb-4 text-primary cursor-pointer hover:shadow-md transition"
+    >
       <div className="flex justify-between items-center mb-2">
         <h2 className="text-lg font-bold">{title}</h2>
 
@@ -55,15 +68,21 @@ export default function SessionCardSessions({
           {like_count} curtidas · {comments_count} comentários
         </span>
         {onLike && (
-          <button onClick={onLike} className="ml-2 text-primary hover:text-red-500 transition">
+          <button
+            onClick={(e) => {
+              e.stopPropagation(); // evita que clique propague pro card
+              onLike();
+            }}
+            className="ml-2 text-primary hover:text-red-500 transition"
+          >
             <FaHeart className={`inline ${isLiked ? "text-red-500" : ""}`} />
           </button>
         )}
         {onDelete && (
           <button
             onClick={(e) => {
-              e.stopPropagation(); 
-              onDelete(); 
+              e.stopPropagation();
+              onDelete();
             }}
             className="absolute bottom-2 right-2 text-red-500 text-xs font-semibold hover:underline"
           >

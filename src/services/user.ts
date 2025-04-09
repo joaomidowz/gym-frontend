@@ -108,3 +108,13 @@ export async function searchUser(query: string, token: string) {
 
   return data;
 }
+
+
+export async function getUserStreakById(userId: number) {
+  const res = await fetch(`${API_URL}/user/${userId}/streak`);
+  const data = await res.json();
+
+  if (!res.ok) throw new Error(data.error || "Erro ao pegar streak do usuário");
+
+  return data;
+}
