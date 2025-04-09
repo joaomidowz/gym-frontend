@@ -9,6 +9,8 @@ import {
     getFollowingCount,
 } from "@/services/follow";
 import { UserListModal } from "./userListModal";
+import { EditProfileModal } from "./editProfileModal";
+import { SuccessToast } from "./successToast";
 
 type Props = {
     user: {
@@ -32,6 +34,9 @@ export function UserProfile({ user, isOwnProfile, sessionCount, streak }: Props)
     const [followingCount, setFollowingCount] = useState(0);
     const [showModal, setShowModal] = useState<"followers" | "following" | null>(null);
     const [userList, setUserList] = useState<{ id: number; name: string }[]>([]);
+    const [showEditModal, setShowEditModal] = useState(false);
+    const [showToast, setShowToast] = useState(false);
+    const [localUser, setLocalUser] = useState(user);
 
     const token = getToken();
 
@@ -76,8 +81,8 @@ export function UserProfile({ user, isOwnProfile, sessionCount, streak }: Props)
                 <div className="w-24 h-24 rounded-full border-4 border-primary mb-4 bg-primary/10 flex items-center justify-center text-xs text-primary">
                     Avatar
                 </div>
-                <h2 className="text-2xl font-bold text-primary">{user.name}</h2>
-                <p className="text-sm text-gray-500">{user.email}</p>
+                <h2 className="text-2xl font-bold text-primary">{localUser.name}</h2>
+                <p className="text-sm text-gray-500">{localUser.email}</p>
 
                 <div className="flex gap-4 mt-2 text-sm text-primary cursor-pointer">
                     <span onClick={() => setShowModal("followers")}>
@@ -89,7 +94,10 @@ export function UserProfile({ user, isOwnProfile, sessionCount, streak }: Props)
                 </div>
 
                 {isOwnProfile && (
-                    <button className="mt-4 px-4 py-2 bg-primary text-white text-sm rounded-xl hover:bg-primary/90 transition">
+                    <button
+                        onClick={() => setShowEditModal(true)}
+                        className="mt-4 px-4 py-2 bg-primary text-white text-sm rounded-xl hover:bg-primary/90 transition"
+                    >
                         Editar perfil
                     </button>
                 )}
@@ -102,11 +110,11 @@ export function UserProfile({ user, isOwnProfile, sessionCount, streak }: Props)
                 </div>
                 <div className="bg-white rounded-2xl p-4 shadow">
                     <p className="text-gray-400">Peso</p>
-                    <p className="text-xl font-semibold">{user.weight_kg ?? "-"}</p>
+                    <p className="text-xl font-semibold">{localUser.weight_kg ?? "-"}</p>
                 </div>
                 <div className="bg-white rounded-2xl p-4 shadow">
                     <p className="text-gray-400">Altura</p>
-                    <p className="text-xl font-semibold">{user.height_cm ?? "-"}</p>
+                    <p className="text-xl font-semibold">{localUser.height_cm ?? "-"}</p>
                 </div>
                 <div className="bg-white rounded-2xl p-4 shadow">
                     <p className="text-gray-400">Streak atual</p>
@@ -136,6 +144,21 @@ export function UserProfile({ user, isOwnProfile, sessionCount, streak }: Props)
                 />
             )}
 
+            {showEditModal && (
+                <EditProfileModal
+                    userId={localUser.id}
+                    currentHeight={localUser.height_cm}
+                    currentWeight={localUser.weight_kg}
+                    currentEmail={localUser.email}
+                    onClose={() => setShowEditModal(false)}
+                    onSuccess={(newData) => {
+                        setLocalUser((prev) => ({ ...prev, ...newData }));
+                        setShowToast(true);
+                    }}
+                />
+            )}
+
+            {showToast && <SuccessToast message="Perfil atualizado com sucesso!" />}
         </div>
     );
 }

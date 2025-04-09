@@ -29,30 +29,32 @@ export async function getAllUsers(token: string) {
 }
 
 export async function updateUser(
-  id: number, token: string, updates: {
-      name?: string;
-      email?: string;
-      password?: string;
-      height_cm?: number;
-      weight_kg?: number;
-  }) {
-    const res = await fetch(`${API_URL}/user/${id}`, {
-      method: "PUT",
-      headers: {
-        "Content-Type": "application/json",
-        Authorization: `Bearer ${token}`,
-      },
-      body: JSON.stringify(updates),
-    });
-  
-    const data = await res.json();
-  
-    if (!res.ok)
-      throw new Error(data.error || data.message || "Erro ao atualizar usuário");
-  
-    return data;
+  id: number,
+  token: string,
+  updates: {
+    email?: string;
+    height_cm?: number;
+    weight_kg?: number;
+    current_password?: string;
+    new_password?: string;
   }
+) {
+  const res = await fetch(`${API_URL}/user/${id}`, {
+    method: "PUT",
+    headers: {
+      "Content-Type": "application/json",
+      Authorization: `Bearer ${token}`,
+    },
+    body: JSON.stringify(updates),
+  });
 
+  const data = await res.json();
+
+  if (!res.ok)
+    throw new Error(data.error || data.message || "Erro ao atualizar usuário");
+
+  return data;
+}
 
 export async function deleteUser(id: number, token: string) {
   const res = await fetch(`${API_URL}/user/${id}`, {
@@ -108,7 +110,6 @@ export async function searchUser(query: string, token: string) {
 
   return data;
 }
-
 
 export async function getUserStreakById(userId: number) {
   const res = await fetch(`${API_URL}/user/${userId}/streak`);
