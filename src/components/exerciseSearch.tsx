@@ -4,9 +4,9 @@ import { useEffect, useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { IoClose } from "react-icons/io5";
 import { FaSearch } from "react-icons/fa";
-import { getExercises } from "@/services/exercises";
+import { getExercises, muscleGroups } from "@/services/exercises";
 import { getToken } from "@/utils/storage";
-import { muscleGroups } from "@/services/exercises";
+import CreateExerciseOverlay from "./createExerciseOverlay";
 
 type Props = {
   isOpen: boolean;
@@ -19,6 +19,7 @@ export default function ExerciseSearch({ isOpen, onClose, onSelect }: Props) {
   const [selectedGroup, setSelectedGroup] = useState("");
   const [loading, setLoading] = useState(false);
   const [results, setResults] = useState<any[]>([]);
+  const [showCreateOverlay, setShowCreateOverlay] = useState(false);
 
   const fetchExercises = async () => {
     try {
@@ -89,11 +90,10 @@ export default function ExerciseSearch({ isOpen, onClose, onSelect }: Props) {
             {muscleGroups.map((group) => (
               <button
                 key={group}
-                className={`px-3 py-1 rounded-full text-sm border ${
-                  selectedGroup === group
+                className={`px-3 py-1 rounded-full text-sm border ${selectedGroup === group
                     ? "bg-primary text-white"
                     : "border-primary text-primary"
-                }`}
+                  }`}
                 onClick={() =>
                   setSelectedGroup((prev) => (prev === group ? "" : group))
                 }
@@ -106,7 +106,7 @@ export default function ExerciseSearch({ isOpen, onClose, onSelect }: Props) {
           {loading ? (
             <p className="text-primary">Carregando...</p>
           ) : (
-            <div className="space-y-2 text-primary overflow-y-auto max-h-[60vh]">
+            <div className="space-y-2 text-primary overflow-y-auto max-h-[60vh] pb-20">
               {results.length === 0 && <p>Nenhum exercício encontrado.</p>}
               {results.map((ex: any) => (
                 <button
@@ -123,6 +123,21 @@ export default function ExerciseSearch({ isOpen, onClose, onSelect }: Props) {
               ))}
             </div>
           )}
+
+          
+          <button
+            onClick={() => setShowCreateOverlay(true)}
+            className="fixed bottom-15 right-5 bg-primary text-white w-14 h-14 rounded-full text-3xl shadow-xl z-[55] flex items-center justify-center cursor-pointer"
+          >
+            +
+          </button>
+
+          
+          <CreateExerciseOverlay
+            isOpen={showCreateOverlay}
+            onClose={() => setShowCreateOverlay(false)}
+            onCreated={() => fetchExercises()}
+          />
         </motion.div>
       )}
     </AnimatePresence>
