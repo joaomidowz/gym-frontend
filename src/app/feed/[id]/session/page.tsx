@@ -7,6 +7,7 @@ import { getWorkoutExercisesByWorkoutId } from "@/services/workoutExercise";
 import { getExercises } from "@/services/exercises";
 import { motion } from "framer-motion";
 import { getWorkoutSessionById } from "@/services/workoutSession";
+import SessionComments from "@/components/sessionComments";
 import Link from "next/link";
 
 
@@ -112,6 +113,7 @@ export default function ViewSessionPage() {
           </motion.div>
         ))}
       </div>
+      <SessionComments sessionId={Number(sessionId)} />
 
     </div>
   );
