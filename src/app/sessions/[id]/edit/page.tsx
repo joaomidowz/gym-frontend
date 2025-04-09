@@ -5,317 +5,338 @@ import { useParams, useRouter } from "next/navigation";
 import { getExercises } from "@/services/exercises";
 import { getToken } from "@/utils/storage";
 import {
-    createWorkoutExercise,
-    createWorkoutSet,
-    deleteWorkoutExercise,
-    deleteWorkoutSet,
-    getWorkoutExercisesByWorkoutId,
-    updateWorkoutSet,
+  createWorkoutExercise,
+  createWorkoutSet,
+  deleteWorkoutExercise,
+  deleteWorkoutSet,
+  getWorkoutExercisesByWorkoutId,
+  updateWorkoutSet,
 } from "@/services/workoutExercise";
 import { motion } from "framer-motion";
+import ExerciseSearch from "@/components/exerciseSearch";
 
 const setTypes = ["Warmup", "Feeder", "Work", "Top"];
 
 type Set = {
-    id?: number;
-    reps: string;
-    weight: string;
-    set_type: string;
+  id?: number;
+  reps: string;
+  weight: string;
+  set_type: string;
+  order: number;
 };
 
 type Exercise = {
-    id: number;
-    backendId?: number;
-    exerciseId: string;
-    sets: Set[];
+  id: number;
+  backendId?: number;
+  exerciseId: string;
+  sets: Set[];
 };
 
 export default function EditSession() {
-    const [exercises, setExercises] = useState<Exercise[]>([]);
-    const [exerciseOptions, setExerciseOptions] = useState<any[]>([]);
-    const [deletedSetIds, setDeletedSetIds] = useState<number[]>([]); // 👈 novo
-    const router = useRouter();
-    const { id: sessionId } = useParams();
+  const [exercises, setExercises] = useState<Exercise[]>([]);
+  const [exerciseOptions, setExerciseOptions] = useState<any[]>([]);
+  const [showExerciseSearch, setShowExerciseSearch] = useState(false);
+  const router = useRouter();
+  const { id: sessionId } = useParams();
 
-    useEffect(() => {
-        const fetchData = async () => {
-            try {
-                const token = getToken();
-                if (!token || !sessionId) return;
-
-                const [exerciseRes, workoutRes] = await Promise.all([
-                    getExercises(token),
-                    getWorkoutExercisesByWorkoutId(Number(sessionId), token),
-                ]);
-
-                setExerciseOptions(exerciseRes);
-
-                const formatted = workoutRes.map((item: any) => ({
-                    id: Date.now() + item.id,
-                    backendId: item.id,
-                    exerciseId: item.exercise.id.toString(),
-                    sets: (item.workout_sets || []).map((s: any) => ({
-                        id: s.id,
-                        reps: s.reps?.toString() || "",
-                        weight: s.weight?.toString() || "",
-                        set_type: s.set_type || "Work",
-                    })),
-                }));
-
-                setExercises(formatted);
-            } catch (err) {
-                console.error("Erro ao buscar dados:", err);
-            }
-        };
-
-        fetchData();
-    }, [sessionId]);
-
-    const addExercise = () => {
-        setExercises((prev) => [
-            ...prev,
-            {
-                id: Date.now(),
-                exerciseId: "",
-                sets: [{ reps: "", weight: "", set_type: "Work" }],
-            },
-        ]);
-    };
-
-    const addSet = (exerciseId: number) => {
-        setExercises((prev) =>
-            prev.map((ex) =>
-                ex.id === exerciseId
-                    ? {
-                        ...ex,
-                        sets: [...ex.sets, { reps: "", weight: "", set_type: "Work" }],
-                    }
-                    : ex
-            )
-        );
-    };
-
-    const deleteSet = (exerciseId: number, index: number) => {
-        setExercises((prev) =>
-            prev.map((ex) => {
-                if (ex.id !== exerciseId) return ex;
-
-                const deletedSet = ex.sets[index];
-                if (deletedSet?.id) {
-                    setDeletedSetIds((prevDeleted) => [...prevDeleted, deletedSet.id!]);
-                }
-
-                return {
-                    ...ex,
-                    sets: ex.sets.filter((_, i) => i !== index),
-                };
-            })
-        );
-    };
-
-    const removeExercise = async (exerciseId: number) => {
-        setExercises((prev) => prev.filter((ex) => ex.id !== exerciseId));
-
-        const backendId = exercises.find((ex) => ex.id === exerciseId)?.backendId;
-
-        if (!backendId) return;
-
-        const token = getToken();
-        if (token) {
-            try {
-                await deleteWorkoutExercise(backendId, token);
-            } catch (err) {
-                console.error("Erro ao deletar exercício:", err);
-            }
-        }
-    };
-
-    const updateSet = async (
-        exerciseId: number,
-        setIndex: number,
-        field: keyof Set,
-        value: string
-    ) => {
-        setExercises((prev) =>
-            prev.map((ex) => {
-                if (ex.id !== exerciseId) return ex;
-
-                const updatedSets = [...ex.sets];
-                const updatedSet = { ...updatedSets[setIndex], [field]: value };
-                updatedSets[setIndex] = updatedSet;
-
-                if (updatedSet.id) {
-                    const token = getToken();
-                    if (token) {
-                        updateWorkoutSet(updatedSet.id, token, { [field]: value });
-                    }
-                }
-
-                return { ...ex, sets: updatedSets };
-            })
-        );
-    };
-
-    const handleFinalize = async () => {
+  useEffect(() => {
+    const fetchData = async () => {
+      try {
         const token = getToken();
         if (!token || !sessionId) return;
 
-        try {
+        const [exerciseRes, workoutRes] = await Promise.all([
+          getExercises(token),
+          getWorkoutExercisesByWorkoutId(Number(sessionId), token),
+        ]);
 
-            for (const setId of deletedSetIds) {
-                try {
-                    await deleteWorkoutSet(setId, token);
-                } catch (err) {
-                    console.error("Erro ao deletar set:", err);
-                }
-            }
-            setDeletedSetIds([]);
+        setExerciseOptions(exerciseRes);
 
-            for (const ex of exercises) {
-                if (!ex.exerciseId) continue;
+        const formatted = workoutRes.map((item: any) => ({
+          id: Date.now() + item.id,
+          backendId: item.id,
+          exerciseId: item.exercise.id.toString(),
+          sets: (item.workout_sets || []).map((s: any) => ({
+            id: s.id,
+            reps: s.reps?.toString() || "0",
+            weight: s.weight?.toString() || "0",
+            set_type: s.set_type || "Work",
+            order: s.order || 1,
+          })),
+        }));
 
-                let workoutExerciseId = ex.backendId;
-
-                if (!workoutExerciseId) {
-                    const created = await createWorkoutExercise(token, {
-                        workout_session_id: Number(sessionId),
-                        exercise_id: Number(ex.exerciseId),
-                    });
-                    workoutExerciseId = created.id;
-                }
-
-                for (let i = 0; i < ex.sets.length; i++) {
-                    const set = ex.sets[i];
-                    await createWorkoutSet(token, {
-                        workout_exercise_id: workoutExerciseId!,
-                        workout_session_id: Number(sessionId),
-                        weight: Number(set.weight),
-                        reps: Number(set.reps),
-                        set_type: set.set_type,
-                        order: i + 1, // garante ordem
-                    });
-                }
-            }
-
-            router.push("/sessions");
-        } catch (err) {
-            console.error("Erro ao salvar exercícios:", err);
-        }
+        setExercises(formatted);
+      } catch (err) {
+        console.error("Erro ao buscar dados:", err);
+      }
     };
 
-    return (
-        <div className="flex flex-col items-center p-6 max-w-md mx-auto text-primary pb-32">
-            <h1 className="text-2xl font-bold mb-4">Adicionar Exercícios</h1>
+    fetchData();
+  }, [sessionId]);
 
-            <button
-                onClick={addExercise}
-                className="bg-primary text-white px-4 py-2 rounded-xl mb-6"
-            >
-                + Adicionar Exercício
-            </button>
+  const handleAddExerciseFromModal = async (exercise: any) => {
+    const token = getToken();
+    if (!token || !sessionId) return;
 
-            <div className="w-full space-y-6">
-                {exercises.map((ex) => (
-                    <motion.div
-                        key={ex.id}
-                        initial={{ opacity: 0, y: 10 }}
-                        animate={{ opacity: 1, y: 0 }}
-                        className="border-2 border-primary rounded-xl p-4"
-                    >
-                        <div className="flex justify-between items-center mb-2">
-                            <select
-                                value={ex.exerciseId}
-                                onChange={(e) => {
-                                    const newId = e.target.value;
-                                    setExercises((prev) =>
-                                        prev.map((e2) =>
-                                            e2.id === ex.id ? { ...e2, exerciseId: newId } : e2
-                                        )
-                                    );
-                                }}
-                                className="w-full border border-primary p-2 rounded-xl"
-                            >
-                                <option value="">Selecionar exercício</option>
-                                {exerciseOptions.map((op: any) => (
-                                    <option key={op.id} value={op.id}>
-                                        {op.name}
-                                    </option>
-                                ))}
-                            </select>
-                            <button
-                                className="ml-2 text-red-500 font-bold"
-                                onClick={() => removeExercise(ex.id)}
-                            >
-                                X
-                            </button>
-                        </div>
+    try {
+      const created = await createWorkoutExercise(token, {
+        workout_session_id: Number(sessionId),
+        exercise_id: Number(exercise.id),
+      });
 
-                        {ex.sets.map((set, idx) => (
-                            <div key={idx} className="flex flex-col mb-2">
-                                <div className="flex gap-2">
-                                    <div className="w-1/2">
-                                        <label className="block text-xs mb-1">Repetições</label>
-                                        <input
-                                            type="number"
-                                            value={set.reps}
-                                            onChange={(e) =>
-                                                updateSet(ex.id, idx, "reps", e.target.value)
-                                            }
-                                            className="w-full border border-primary p-2 rounded-xl"
-                                        />
-                                    </div>
-                                    <div className="w-1/2">
-                                        <label className="block text-xs mb-1">Peso (kg)</label>
-                                        <input
-                                            type="number"
-                                            value={set.weight}
-                                            onChange={(e) =>
-                                                updateSet(ex.id, idx, "weight", e.target.value)
-                                            }
-                                            className="w-full border border-primary p-2 rounded-xl"
-                                        />
-                                    </div>
-                                </div>
-                                <div className="mt-1 flex items-center gap-2">
-                                    <select
-                                        value={set.set_type}
-                                        onChange={(e) =>
-                                            updateSet(ex.id, idx, "set_type", e.target.value)
-                                        }
-                                        className="w-full border border-primary p-2 rounded-xl"
-                                    >
-                                        {setTypes.map((type) => (
-                                            <option key={type} value={type}>
-                                                {type}
-                                            </option>
-                                        ))}
-                                    </select>
-                                    <button
-                                        onClick={() => deleteSet(ex.id, idx)}
-                                        className="text-red-500 font-bold text-xs"
-                                    >
-                                        Remover
-                                    </button>
-                                </div>
-                            </div>
-                        ))}
+      setExercises((prev) => [
+        ...prev,
+        {
+          id: Date.now(),
+          backendId: created.id,
+          exerciseId: exercise.id.toString(),
+          sets: [],
+        },
+      ]);
+    } catch (err) {
+      console.error("Erro ao adicionar exercício:", err);
+    }
+  };
 
-                        <button
-                            onClick={() => addSet(ex.id)}
-                            className="text-primary underline text-sm mt-2"
-                        >
-                            + Adicionar set
-                        </button>
-                    </motion.div>
-                ))}
+  const addSet = async (exerciseId: number) => {
+    const token = getToken();
+    const ex = exercises.find((e) => e.id === exerciseId);
+    if (!token || !ex || !sessionId || !ex.exerciseId) return;
+
+    try {
+      let workoutExerciseId = ex.backendId;
+
+      if (!workoutExerciseId) return;
+
+      const newSet = await createWorkoutSet(token, {
+        workout_exercise_id: workoutExerciseId,
+        workout_session_id: Number(sessionId),
+        weight: 0,
+        reps: 0,
+        set_type: "Work",
+        order: ex.sets.length + 1,
+      });
+
+      setExercises((prev) =>
+        prev.map((e) =>
+          e.id === exerciseId
+            ? {
+                ...e,
+                sets: [
+                  ...e.sets,
+                  {
+                    id: newSet.set.id,
+                    reps: newSet.set.reps.toString(),
+                    weight: newSet.set.weight.toString(),
+                    set_type: newSet.set.set_type,
+                    order: newSet.set.order,
+                  },
+                ],
+              }
+            : e
+        )
+      );
+    } catch (err) {
+      console.error("Erro ao adicionar set:", err);
+    }
+  };
+
+  const deleteSet = async (exerciseId: number, index: number) => {
+    const ex = exercises.find((e) => e.id === exerciseId);
+    if (!ex) return;
+
+    const setToDelete = ex.sets[index];
+
+    if (setToDelete?.id) {
+      try {
+        const token = getToken();
+        if (token) {
+          await deleteWorkoutSet(setToDelete.id, token);
+        }
+      } catch (err) {
+        console.error("Erro ao excluir set:", err);
+      }
+    }
+
+    setExercises((prev) =>
+      prev.map((e) =>
+        e.id === exerciseId
+          ? { ...e, sets: e.sets.filter((_, i) => i !== index) }
+          : e
+      )
+    );
+  };
+
+  const removeExercise = async (exerciseId: number) => {
+    setExercises((prev) => prev.filter((ex) => ex.id !== exerciseId));
+
+    const backendId = exercises.find((ex) => ex.id === exerciseId)?.backendId;
+
+    if (!backendId) return;
+
+    const token = getToken();
+    if (token) {
+      try {
+        await deleteWorkoutExercise(backendId, token);
+      } catch (err) {
+        console.error("Erro ao deletar exercício:", err);
+      }
+    }
+  };
+
+  const updateSet = async (
+    exerciseId: number,
+    setIndex: number,
+    field: keyof Set,
+    value: string
+  ) => {
+    setExercises((prev) =>
+      prev.map((ex) => {
+        if (ex.id !== exerciseId) return ex;
+
+        const updatedSets = [...ex.sets];
+        const updatedSet = { ...updatedSets[setIndex], [field]: value };
+        updatedSets[setIndex] = updatedSet;
+
+        if (updatedSet.id) {
+          const token = getToken();
+          if (token) {
+            updateWorkoutSet(updatedSet.id, token, {
+              [field]:
+                field === "weight" || field === "reps" || field === "order"
+                  ? Number(value)
+                  : value,
+            });
+          }
+        }
+
+        return { ...ex, sets: updatedSets };
+      })
+    );
+  };
+
+  const handleFinalize = () => {
+    router.push("/sessions");
+  };
+
+  return (
+    <div className="flex flex-col items-center p-6 max-w-md mx-auto text-primary pb-32">
+      <h1 className="text-2xl font-bold mb-4">Adicionar Exercícios</h1>
+
+      <button
+        onClick={() => setShowExerciseSearch(true)}
+        className="bg-primary text-white px-4 py-2 rounded-xl mb-6"
+      >
+        + Adicionar Exercício
+      </button>
+
+      <div className="w-full space-y-6">
+        {exercises.map((ex) => (
+          <motion.div
+            key={ex.id}
+            initial={{ opacity: 0, y: 10 }}
+            animate={{ opacity: 1, y: 0 }}
+            className="border-2 border-primary rounded-xl p-4"
+          >
+            <div className="flex justify-between items-center mb-2">
+              <p className="font-semibold text-primary">
+                {
+                  exerciseOptions.find((op: any) => op.id.toString() === ex.exerciseId)
+                    ?.name || "Exercício"
+                }
+              </p>
+              <button
+                className="ml-2 text-red-500 font-bold"
+                onClick={() => removeExercise(ex.id)}
+              >
+                X
+              </button>
             </div>
 
+            {ex.sets.map((set, idx) => (
+              <div key={idx} className="flex flex-col mb-2">
+                <div className="flex gap-2">
+                  <div className="w-1/3">
+                    <label className="block text-xs mb-1">Ordem</label>
+                    <input
+                      type="number"
+                      value={set.order || 1}
+                      onChange={(e) =>
+                        updateSet(ex.id, idx, "order", e.target.value)
+                      }
+                      className="w-full border border-primary p-2 rounded-xl"
+                    />
+                  </div>
+                  <div className="w-1/3">
+                    <label className="block text-xs mb-1">Repetições</label>
+                    <input
+                      type="number"
+                      value={set.reps || "0"}
+                      onChange={(e) =>
+                        updateSet(ex.id, idx, "reps", e.target.value)
+                      }
+                      className="w-full border border-primary p-2 rounded-xl"
+                    />
+                  </div>
+                  <div className="w-1/3">
+                    <label className="block text-xs mb-1">Peso (kg)</label>
+                    <input
+                      type="number"
+                      value={set.weight || "0"}
+                      onChange={(e) =>
+                        updateSet(ex.id, idx, "weight", e.target.value)
+                      }
+                      className="w-full border border-primary p-2 rounded-xl"
+                    />
+                  </div>
+                </div>
+                <div className="mt-1 flex items-center gap-2">
+                  <select
+                    value={set.set_type}
+                    onChange={(e) =>
+                      updateSet(ex.id, idx, "set_type", e.target.value)
+                    }
+                    className="w-full border border-primary p-2 rounded-xl"
+                  >
+                    {setTypes.map((type) => (
+                      <option key={type} value={type}>
+                        {type}
+                      </option>
+                    ))}
+                  </select>
+                  <button
+                    onClick={() => deleteSet(ex.id, idx)}
+                    className="text-red-500 font-bold text-xs"
+                  >
+                    Remover
+                  </button>
+                </div>
+              </div>
+            ))}
+
             <button
-                onClick={handleFinalize}
-                className="fixed bottom-16 bg-primary text-white px-6 py-3 rounded-xl shadow-lg"
+              onClick={() => addSet(ex.id)}
+              className="text-primary underline text-sm mt-2"
             >
-                Finalizar sessão
+              + Adicionar set
             </button>
-        </div>
-    );
+          </motion.div>
+        ))}
+      </div>
+
+      <button
+        onClick={handleFinalize}
+        className="fixed bottom-16 bg-primary text-white px-6 py-3 rounded-xl shadow-lg"
+      >
+        Finalizar sessão
+      </button>
+
+      {/* Exercício Search Modal */}
+      <ExerciseSearch
+        isOpen={showExerciseSearch}
+        onClose={() => setShowExerciseSearch(false)}
+        onSelect={handleAddExerciseFromModal}
+      />
+    </div>
+  );
 }
