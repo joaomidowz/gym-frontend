@@ -70,11 +70,11 @@ export async function createWorkoutSet(
 }
 
 export async function updateWorkoutSet(
-  token: string,
   setId: number,
+  token: string,
   updates: {
-    reps?: number;
     weight?: number;
+    reps?: number;
     set_type?: string;
     order?: number;
   }
@@ -90,8 +90,9 @@ export async function updateWorkoutSet(
 
   const data = await res.json();
 
-  if (!res.ok)
-    throw new Error(data.error || data.message || "Erro ao atualizar set");
+  if (!res.ok) {
+    throw new Error(data.error || data.message || "Erro ao atualizar o set");
+  }
 
   return data;
 }
@@ -123,15 +124,22 @@ export async function getWorkoutExercisesByWorkoutId(
     },
   });
 
-  const data = await res.json();
+  // Se for 404, retorna array vazio diretamente
+  if (res.status === 404) return [];
 
-  if (!res.ok)
+  const result = await res.json();
+
+  if (!res.ok) {
     throw new Error(
-      data.error || data.message || "Erro ao buscar exercícios da sessão"
+      result.error || result.message || "Erro ao buscar exercícios da sessão"
     );
+  }
 
-  return data;
+  // Garante que só retorna array
+  return Array.isArray(result) ? result : [];
 }
+
+
 
 export async function deleteWorkoutExercise(exerciseId: number, token: string) {
   const res = await fetch(`${API_URL}/workout-exercise/${exerciseId}`, {
@@ -174,3 +182,13 @@ export async function updateWorkoutExercise(
 
   return data;
 }
+
+export const deleteWorkoutSet = async (id: number, token: string) => {
+  const res = await fetch(`${API_URL}/workout-set/${id}`, {
+    method: "DELETE",
+    headers: { Authorization: `Bearer ${token}` },
+  });
+
+  if (!res.ok) throw new Error("Erro ao deletar set");
+  return res.json();
+};

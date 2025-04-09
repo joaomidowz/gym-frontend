@@ -8,6 +8,7 @@ import {
     createWorkoutExercise,
     createWorkoutSet,
     deleteWorkoutExercise,
+    deleteWorkoutSet,
     getWorkoutExercisesByWorkoutId,
     updateWorkoutSet,
 } from "@/services/workoutExercise";
@@ -32,6 +33,7 @@ type Exercise = {
 export default function EditSession() {
     const [exercises, setExercises] = useState<Exercise[]>([]);
     const [exerciseOptions, setExerciseOptions] = useState<any[]>([]);
+    const [deletedSetIds, setDeletedSetIds] = useState<number[]>([]); // 👈 novo
     const router = useRouter();
     const { id: sessionId } = useParams();
 
@@ -52,7 +54,7 @@ export default function EditSession() {
                     id: Date.now() + item.id,
                     backendId: item.id,
                     exerciseId: item.exercise.id.toString(),
-                    sets: (item.workout_sets || []).map((s: any, i: number) => ({
+                    sets: (item.workout_sets || []).map((s: any) => ({
                         id: s.id,
                         reps: s.reps?.toString() || "",
                         weight: s.weight?.toString() || "",
@@ -95,34 +97,40 @@ export default function EditSession() {
 
     const deleteSet = (exerciseId: number, index: number) => {
         setExercises((prev) =>
-            prev.map((ex) =>
-                ex.id === exerciseId
-                    ? { ...ex, sets: ex.sets.filter((_, i) => i !== index) }
-                    : ex
-            )
+            prev.map((ex) => {
+                if (ex.id !== exerciseId) return ex;
+
+                const deletedSet = ex.sets[index];
+                if (deletedSet?.id) {
+                    setDeletedSetIds((prevDeleted) => [...prevDeleted, deletedSet.id!]);
+                }
+
+                return {
+                    ...ex,
+                    sets: ex.sets.filter((_, i) => i !== index),
+                };
+            })
         );
     };
 
-    const deleteExercise = async (exerciseId: number, backendId?: number) => {
-        if (backendId) {
+    const removeExercise = async (exerciseId: number) => {
+        setExercises((prev) => prev.filter((ex) => ex.id !== exerciseId));
+
+        const backendId = exercises.find((ex) => ex.id === exerciseId)?.backendId;
+
+        if (!backendId) return;
+
+        const token = getToken();
+        if (token) {
             try {
-                const token = getToken();
-                if (!token) {
-                    console.error("Usuário não autenticado");
-                    return;
-                }
-
-                await deleteWorkoutExercise(backendId, token);
-
                 await deleteWorkoutExercise(backendId, token);
             } catch (err) {
-                console.error("Erro ao excluir exercício existente:", err);
+                console.error("Erro ao deletar exercício:", err);
             }
         }
-        setExercises((prev) => prev.filter((ex) => ex.id !== exerciseId));
     };
 
-    const updateSet = (
+    const updateSet = async (
         exerciseId: number,
         setIndex: number,
         field: keyof Set,
@@ -133,8 +141,15 @@ export default function EditSession() {
                 if (ex.id !== exerciseId) return ex;
 
                 const updatedSets = [...ex.sets];
-                const updatedSet = { ...updatedSets[setIndex], [field]: value }; // 👈 aqui é o segredo
+                const updatedSet = { ...updatedSets[setIndex], [field]: value };
                 updatedSets[setIndex] = updatedSet;
+
+                if (updatedSet.id) {
+                    const token = getToken();
+                    if (token) {
+                        updateWorkoutSet(updatedSet.id, token, { [field]: value });
+                    }
+                }
 
                 return { ...ex, sets: updatedSets };
             })
@@ -146,6 +161,16 @@ export default function EditSession() {
         if (!token || !sessionId) return;
 
         try {
+
+            for (const setId of deletedSetIds) {
+                try {
+                    await deleteWorkoutSet(setId, token);
+                } catch (err) {
+                    console.error("Erro ao deletar set:", err);
+                }
+            }
+            setDeletedSetIds([]);
+
             for (const ex of exercises) {
                 if (!ex.exerciseId) continue;
 
@@ -167,7 +192,7 @@ export default function EditSession() {
                         weight: Number(set.weight),
                         reps: Number(set.reps),
                         set_type: set.set_type,
-                        order: i + 1,
+                        order: i + 1, // garante ordem
                     });
                 }
             }
@@ -219,7 +244,7 @@ export default function EditSession() {
                             </select>
                             <button
                                 className="ml-2 text-red-500 font-bold"
-                                onClick={() => deleteExercise(ex.id, ex.backendId)}
+                                onClick={() => removeExercise(ex.id)}
                             >
                                 X
                             </button>
