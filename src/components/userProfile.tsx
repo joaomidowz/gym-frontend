@@ -1,3 +1,15 @@
+"use client";
+
+import { useEffect, useState } from "react";
+import { getToken } from "@/utils/storage";
+import {
+    getFollowers,
+    getFollowing,
+    getFollowersCount,
+    getFollowingCount,
+} from "@/services/follow";
+import { UserListModal } from "./userListModal";
+
 type Props = {
     user: {
         id: number;
@@ -16,6 +28,48 @@ type Props = {
 };
 
 export function UserProfile({ user, isOwnProfile, sessionCount, streak }: Props) {
+    const [followersCount, setFollowersCount] = useState(0);
+    const [followingCount, setFollowingCount] = useState(0);
+    const [showModal, setShowModal] = useState<"followers" | "following" | null>(null);
+    const [userList, setUserList] = useState<{ id: number; name: string }[]>([]);
+
+    const token = getToken();
+
+    const loadFollowInfo = async () => {
+        if (!token) return;
+        try {
+            const [followers, following] = await Promise.all([
+                getFollowersCount(user.id, token),
+                getFollowingCount(user.id, token),
+            ]);
+            setFollowersCount(followers);
+            setFollowingCount(following);
+        } catch (err) {
+            console.error("Erro ao carregar contagens de follow:", err);
+        }
+    };
+
+    const loadUserList = async () => {
+        if (!token || !showModal) return;
+        try {
+            const users =
+                showModal === "followers"
+                    ? await getFollowers(user.id, token)
+                    : await getFollowing(user.id, token);
+            setUserList(users);
+        } catch (err) {
+            console.error("Erro ao carregar lista de usuários:", err);
+        }
+    };
+
+    useEffect(() => {
+        loadFollowInfo();
+    }, [user.id]);
+
+    useEffect(() => {
+        loadUserList();
+    }, [showModal]);
+
     return (
         <div className="p-4 pb-20 max-w-xl mx-auto">
             <div className="bg-white shadow rounded-2xl p-6 flex flex-col items-center">
@@ -24,6 +78,15 @@ export function UserProfile({ user, isOwnProfile, sessionCount, streak }: Props)
                 </div>
                 <h2 className="text-2xl font-bold text-primary">{user.name}</h2>
                 <p className="text-sm text-gray-500">{user.email}</p>
+
+                <div className="flex gap-4 mt-2 text-sm text-primary cursor-pointer">
+                    <span onClick={() => setShowModal("followers")}>
+                        {followersCount} seguidores
+                    </span>
+                    <span onClick={() => setShowModal("following")}>
+                        {followingCount} seguindo
+                    </span>
+                </div>
 
                 {isOwnProfile && (
                     <button className="mt-4 px-4 py-2 bg-primary text-white text-sm rounded-xl hover:bg-primary/90 transition">
@@ -58,11 +121,21 @@ export function UserProfile({ user, isOwnProfile, sessionCount, streak }: Props)
                     </p>
                     {streak?.last_workout_date && (
                         <p className="text-xs mt-1 text-gray-400">
-                            Último treino: {new Date(streak.last_workout_date).toLocaleDateString()}
+                            Último treino:{" "}
+                            {new Date(streak.last_workout_date).toLocaleDateString("pt-BR")}
                         </p>
                     )}
                 </div>
             </div>
+
+            {showModal && (
+                <UserListModal
+                    title={showModal === "followers" ? "Seguidores" : "Seguindo"}
+                    userList={userList}
+                    onClose={() => setShowModal(null)}
+                />
+            )}
+
         </div>
     );
 }
