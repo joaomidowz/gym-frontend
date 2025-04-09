@@ -2,10 +2,12 @@
 
 import { useEffect, useState } from "react";
 import { getFeed } from "@/services/workoutSession";
-import SessionCard from "@/components/sessionCard";
 import { getToken } from "@/utils/storage";
 import SearchOverlay from "@/components/searchOverlay";
 import { likeSession, unlikeSession } from "@/services/social";
+import { useRouter } from "next/navigation"; 
+import SessionCardFeed from "@/components/sessionCardFeed";
+
 
 type Session = {
     id: number;
@@ -24,6 +26,7 @@ type Session = {
 
 
 export default function FeedPage() {
+    const router = useRouter();
     const [sessions, setSessions] = useState<Session[]>([]);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState("");
@@ -103,17 +106,20 @@ export default function FeedPage() {
                 {error && <p className="text-red-500">{error}</p>}
                 {sessions.length === 0 && !loading && <p>Nenhuma sessão encontrada.</p>}
                 {sessions.map((session) => (
-                    <SessionCard
-                        key={session.id} // ✅ Aqui!
-                        title={session.title}
-                        user={session.user}
-                        like_count={session.like_count}
-                        comments_count={session.comments_count}
-                        total_sets={session.total_sets}
-                        total_weight={session.total_weight}
-                        onLike={() => handleToggleLike(session.id)}
-                        isLiked={session.is_liked}
-                    />
+                    <SessionCardFeed
+                    key={session.id}
+                    sessionId={session.id} 
+                    title={session.title}
+                    user={session.user}
+                    like_count={session.like_count}
+                    comments_count={session.comments_count}
+                    total_sets={session.total_sets}
+                    total_weight={session.total_weight}
+                    onLike={() => handleToggleLike(session.id)}
+                    isLiked={session.is_liked}
+                    onClick={() => router.push(`/feed/${session.id}/session`)} 
+                  />
+                  
                 ))}
 
             </div>

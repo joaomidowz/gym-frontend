@@ -2,16 +2,18 @@
 
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
-import { getMyWorkoutSession } from "@/services/workoutSession";
-import SessionCard from "@/components/sessionCard";
+import { getMyWorkoutSession, deleteWorkoutSession } from "@/services/workoutSession";
+import SessionCardSessions from "@/components/sessionCardSessions";
 import { getToken } from "@/utils/storage";
 import { motion } from "framer-motion";
-import Link from "next/link";
+import ConfirmationModal from "@/components/confirmationModal";
 
-export default function FeedPage() {
+export default function SessionPage() {
     const [sessions, setSessions] = useState([]);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState("");
+    const [isModalOpen, setIsModalOpen] = useState(false);
+    const [sessionToDelete, setSessionToDelete] = useState<number | null>(null); 
     const router = useRouter();
 
     useEffect(() => {
@@ -36,6 +38,31 @@ export default function FeedPage() {
         fetchUserSessions();
     }, []);
 
+    const handleDeleteSession = async () => {
+        if (sessionToDelete === null) return;
+
+        const token = getToken();
+        if (!token) return;
+
+        try {
+            await deleteWorkoutSession(sessionToDelete, token); 
+            setSessions((prev) => prev.filter((session: any) => session.id !== sessionToDelete)); 
+            setIsModalOpen(false); 
+        } catch (err) {
+            console.error("Erro ao excluir a sessão:", err);
+        }
+    };
+
+    const openModal = (sessionId: number) => {
+        setSessionToDelete(sessionId);
+        setIsModalOpen(true);
+    };
+
+    const closeModal = () => {
+        setSessionToDelete(null);
+        setIsModalOpen(false);
+    };
+
     return (
         <>
             <nav className="flex items-center justify-between p-4 pb-2">
@@ -55,25 +82,29 @@ export default function FeedPage() {
                     <p className="text-gray-500">Nenhuma sessão encontrada.</p>
                 )}
                 {sessions.map((session: any, index) => (
-                    <Link href={`/sessions/${session.id}/edit`} key={session.id}>
-                        <motion.div
-                            key={session.id}
-                            initial={{ opacity: 0, y: 10 }}
-                            animate={{ opacity: 1, y: 0 }}
-                            transition={{ delay: index * 0.05 }}
-                        >
-                            <SessionCard
-                                title={session.title}
-                                user={session.user}
-                                like_count={session.like_count}
-                                comments_count={session.comments_count}
-                                total_sets={session.total_sets}
-                                total_weight={session.total_weight}
-                            />
-                        </motion.div>
-                    </Link>
+                    <motion.div
+                        key={session.id}
+                        initial={{ opacity: 0, y: 10 }}
+                        animate={{ opacity: 1, y: 0 }}
+                        transition={{ delay: index * 0.05 }}
+                    >
+                        <SessionCardSessions
+                            title={session.title}
+                            user={session.user}
+                            like_count={session.like_count}
+                            comments_count={session.comments_count}
+                            total_sets={session.total_sets}
+                            total_weight={session.total_weight}
+                            onDelete={() => openModal(session.id)} 
+                        />
+                    </motion.div>
                 ))}
             </div>
+            <ConfirmationModal
+                isOpen={isModalOpen}
+                onClose={closeModal}
+                onConfirm={handleDeleteSession}
+            />
         </>
     );
 }

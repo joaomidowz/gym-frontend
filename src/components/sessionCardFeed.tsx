@@ -1,6 +1,9 @@
-import { FaWeightHanging, FaListUl, FaUser, FaHeart } from "react-icons/fa";
+"use client";
 
+import { FaWeightHanging, FaListUl, FaUser, FaHeart } from "react-icons/fa";
+import { useRouter } from "next/navigation";
 type Props = {
+  sessionId: number;
   title: string;
   user?: {
     id: number;
@@ -12,10 +15,11 @@ type Props = {
   total_sets: number;
   total_weight: number;
   onLike?: () => void;
+  onClick?: () => void;
   isLiked?: boolean;
 };
 
-export default function SessionCard({
+export default function SessionCardFeed({
   title,
   user,
   like_count,
@@ -23,10 +27,18 @@ export default function SessionCard({
   total_sets,
   total_weight,
   onLike,
+  onClick,
   isLiked,
 }: Props) {
+
+  const router = useRouter();
+
+
   return (
-    <div className="bg-white border border-primary rounded-xl p-4 shadow mb-4 text-primary">
+    <div
+      onClick={onClick}
+      className="bg-white border border-primary rounded-xl p-4 shadow mb-4 text-primary cursor-pointer hover:shadow-md transition"
+    >
       <div className="flex justify-between items-center mb-2">
         <h2 className="text-lg font-bold">{title}</h2>
         <div className="text-sm flex items-center gap-1">
@@ -51,7 +63,13 @@ export default function SessionCard({
           {like_count} curtidas · {comments_count} comentários
         </span>
         {onLike && (
-          <button onClick={onLike} className="ml-2 text-primary hover:text-red-500 transition">
+          <button
+            onClick={(e) => {
+              e.stopPropagation();
+              onLike?.();
+            }}
+            className="ml-2 text-primary hover:text-red-500 transition"
+          >
             <FaHeart className={`inline ${isLiked ? "text-red-500" : ""}`} />
           </button>
         )}
