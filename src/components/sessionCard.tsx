@@ -1,4 +1,4 @@
-import { FaWeightHanging, FaListUl, FaUser } from "react-icons/fa";
+import { FaWeightHanging, FaListUl, FaUser, FaHeart } from "react-icons/fa";
 
 type Props = {
   title: string;
@@ -11,6 +11,8 @@ type Props = {
   comments_count: number;
   total_sets: number;
   total_weight: number;
+  onLike?: () => void;
+  isLiked?: boolean;
 };
 
 export default function SessionCard({
@@ -20,6 +22,8 @@ export default function SessionCard({
   comments_count,
   total_sets,
   total_weight,
+  onLike,
+  isLiked,
 }: Props) {
   return (
     <div className="bg-white border border-primary rounded-xl p-4 shadow mb-4 text-primary">
@@ -42,8 +46,15 @@ export default function SessionCard({
         </div>
       </div>
 
-      <div className="text-xs text-gray-500">
-        {like_count} curtidas · {comments_count} comentários
+      <div className="text-xs text-gray-500 flex justify-between items-center">
+        <span>
+          {like_count} curtidas · {comments_count} comentários
+        </span>
+        {onLike && (
+          <button onClick={onLike} className="ml-2 text-primary hover:text-red-500 transition">
+            <FaHeart className={`inline ${isLiked ? "text-red-500" : ""}`} />
+          </button>
+        )}
       </div>
     </div>
   );

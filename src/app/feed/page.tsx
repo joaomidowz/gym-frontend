@@ -5,9 +5,26 @@ import { getFeed } from "@/services/workoutSession";
 import SessionCard from "@/components/sessionCard";
 import { getToken } from "@/utils/storage";
 import SearchOverlay from "@/components/searchOverlay";
+import { likeSession, unlikeSession } from "@/services/social";
+
+type Session = {
+    id: number;
+    title: string;
+    user: {
+        id: number;
+        name: string;
+        is_public: boolean;
+    };
+    like_count: number;
+    comments_count: number;
+    total_sets: number;
+    total_weight: number;
+    is_liked: boolean;
+};
+
 
 export default function FeedPage() {
-    const [sessions, setSessions] = useState([]);
+    const [sessions, setSessions] = useState<Session[]>([]);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState("");
 
@@ -33,6 +50,51 @@ export default function FeedPage() {
         fetchFeed();
     }, []);
 
+
+
+    async function handleToggleLike(sessionId: number) {
+        const token = getToken();
+        if (!token) return;
+
+        setSessions((prev) =>
+            prev.map((s: any) =>
+                s.id === sessionId
+                    ? {
+                        ...s,
+                        is_liked: !s.is_liked,
+                        like_count: s.is_liked ? s.like_count - 1 : s.like_count + 1,
+                    }
+                    : s
+            )
+        );
+
+        try {
+            const session = sessions.find((s: any) => s.id === sessionId);
+            if (session?.is_liked) {
+                await unlikeSession(sessionId, token);
+            } else {
+                await likeSession(sessionId, token);
+            }
+        } catch (err) {
+            console.error("Erro ao curtir/descurtir:", err);
+
+            // Rollback
+            setSessions((prev) =>
+                prev.map((s: any) =>
+                    s.id === sessionId
+                        ? {
+                            ...s,
+                            is_liked: !s.is_liked,
+                            like_count: s.is_liked ? s.like_count - 1 : s.like_count + 1,
+                        }
+                        : s
+                )
+            );
+        }
+    }
+
+
+
     return (
         <>
             <SearchOverlay />
@@ -40,17 +102,20 @@ export default function FeedPage() {
                 {loading && <p className="text-primary">Carregando...</p>}
                 {error && <p className="text-red-500">{error}</p>}
                 {sessions.length === 0 && !loading && <p>Nenhuma sessão encontrada.</p>}
-                {sessions.map((session: any) => (
+                {sessions.map((session) => (
                     <SessionCard
-                        key={session.id}
+                        key={session.id} // ✅ Aqui!
                         title={session.title}
                         user={session.user}
                         like_count={session.like_count}
                         comments_count={session.comments_count}
                         total_sets={session.total_sets}
                         total_weight={session.total_weight}
+                        onLike={() => handleToggleLike(session.id)}
+                        isLiked={session.is_liked}
                     />
                 ))}
+
             </div>
         </>
     );

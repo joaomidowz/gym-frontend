@@ -44,12 +44,12 @@ export async function unlikeSession(sessionId: number, token: string) {
     body: JSON.stringify({ session_id: sessionId }),
   });
 
-  const data = await res.json();
+  if (!res.ok) {
+    const data = await res.text();
+    throw new Error("Erro ao descurtir sessão: " + data);
+  }
 
-  if (!res.ok)
-    throw new Error(data.error || data.message || "Erro ao descurtir sessão");
-
-  return data;
+  return true;
 }
 
 export async function commentSession(
