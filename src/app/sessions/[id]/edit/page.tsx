@@ -16,6 +16,7 @@ import {
 } from "@/services/workoutExercise";
 import ExerciseSearch from "@/components/exerciseSearch";
 import CardEditSession from "@/components/cardEditSession";
+import { AnimatePresence, motion } from "framer-motion";
 
 const setTypes = ["Warmup", "Feeder", "Work", "Top"];
 
@@ -25,7 +26,7 @@ type Set = {
   weight: string;
   set_type: string;
   order: number;
-  done?: boolean; // ✅ necessário pro controle de check
+  done?: boolean;
 };
 
 type Exercise = {
@@ -164,15 +165,16 @@ export default function EditSession() {
     setExercises((prev) =>
       prev.map((e) =>
         e.id === exerciseId
-          ? { ...e, sets: e.sets.filter((_, i) => i !== index) }
+          ? {
+              ...e,
+              sets: e.sets.filter((_, i) => i !== index),
+            }
           : e
       )
     );
   };
 
   const removeExercise = async (exerciseId: number) => {
-    setExercises((prev) => prev.filter((ex) => ex.id !== exerciseId));
-
     const backendId = exercises.find((ex) => ex.id === exerciseId)?.backendId;
     if (!backendId) return;
 
@@ -184,6 +186,10 @@ export default function EditSession() {
         console.error("Erro ao deletar exercício:", err);
       }
     }
+
+    setExercises((prev) =>
+      prev.filter((ex) => ex.id !== exerciseId)
+    );
   };
 
   const updateSet = async (
@@ -192,12 +198,23 @@ export default function EditSession() {
     field: keyof Set,
     value: string | boolean
   ) => {
+    const payload: any = {
+      [field]:
+        field === "order"
+          ? Math.max(1, Number(value) || 1)
+          : field === "weight" || field === "reps"
+          ? Number(value)
+          : field === "done"
+          ? Boolean(value === "true" || value === true)
+          : value,
+    };
+
     setExercises((prev) =>
       prev.map((ex) => {
         if (ex.id !== exerciseId) return ex;
 
         const updatedSets = [...ex.sets];
-        const updatedSet = { ...updatedSets[setIndex], [field]: field === "done" ? Boolean(value) : value };
+        const updatedSet = { ...updatedSets[setIndex], [field]: payload[field] };
         updatedSets[setIndex] = updatedSet;
 
         return { ...ex, sets: updatedSets };
@@ -210,19 +227,7 @@ export default function EditSession() {
     if (!setToUpdate?.id || !token) return;
 
     try {
-      const payload: any = {
-        [field]:
-          field === "order"
-            ? Math.max(1, Number(value) || 1)
-            : field === "weight" || field === "reps"
-            ? Number(value)
-            : field === "done"
-            ? Boolean(value === "true" || value === true)
-            : value,
-      };
-      
       await updateWorkoutSet(setToUpdate.id, token, payload);
-      
     } catch (err) {
       console.error("Erro ao atualizar set:", err);
     }
@@ -244,19 +249,30 @@ export default function EditSession() {
       </button>
 
       <div className="w-full space-y-6">
-        {exercises.map((ex) => (
-          <CardEditSession
-            key={ex.id}
-            exerciseName={
-              exerciseOptions.find((op: any) => op.id.toString() === ex.exerciseId)?.name || "Exercício"
-            }
-            sets={ex.sets}
-            onChange={(index, field, value) => updateSet(ex.id, index, field as keyof Set, value)}
-            onRemoveSet={(index) => deleteSet(ex.id, index)}
-            onAddSet={() => addSet(ex.id)}
-            onRemoveExercise={() => removeExercise(ex.id)}
-          />
-        ))}
+        <AnimatePresence>
+          {exercises.map((ex) => (
+            <motion.div
+              key={ex.id}
+              layout
+              exit={{ opacity: 0, x: -100 }}
+              transition={{ duration: 0.3 }}
+            >
+              <CardEditSession
+                exerciseName={
+                  exerciseOptions.find((op: any) => op.id.toString() === ex.exerciseId)?.name ||
+                  "Exercício"
+                }
+                sets={ex.sets}
+                onChange={(index, field, value) =>
+                  updateSet(ex.id, index, field as keyof Set, value)
+                }
+                onRemoveSet={(index) => deleteSet(ex.id, index)}
+                onAddSet={() => addSet(ex.id)}
+                onRemoveExercise={() => removeExercise(ex.id)}
+              />
+            </motion.div>
+          ))}
+        </AnimatePresence>
       </div>
 
       <button
