@@ -40,7 +40,7 @@ export default function CreateExerciseOverlay({ isOpen, onClose, onCreated }: Pr
 
     try {
       setLoading(true);
-      const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/exercise`, {
+      const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/exercises`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
