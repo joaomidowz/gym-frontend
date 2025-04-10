@@ -121,18 +121,18 @@ export default function EditSession() {
         prev.map((e) =>
           e.id === exerciseId
             ? {
-                ...e,
-                sets: [
-                  ...e.sets,
-                  {
-                    id: newSet.set.id,
-                    reps: newSet.set.reps.toString(),
-                    weight: newSet.set.weight.toString(),
-                    set_type: newSet.set.set_type,
-                    order: newSet.set.order,
-                  },
-                ],
-              }
+              ...e,
+              sets: [
+                ...e.sets,
+                {
+                  id: newSet.set.id,
+                  reps: newSet.set.reps.toString(),
+                  weight: newSet.set.weight.toString(),
+                  set_type: newSet.set.set_type,
+                  order: newSet.set.order,
+                },
+              ],
+            }
             : e
         )
       );
@@ -193,27 +193,64 @@ export default function EditSession() {
     setExercises((prev) =>
       prev.map((ex) => {
         if (ex.id !== exerciseId) return ex;
-
+  
         const updatedSets = [...ex.sets];
         const updatedSet = { ...updatedSets[setIndex], [field]: value };
         updatedSets[setIndex] = updatedSet;
-
-        if (updatedSet.id) {
-          const token = getToken();
-          if (token) {
-            updateWorkoutSet(updatedSet.id, token, {
-              [field]:
-                field === "weight" || field === "reps" || field === "order"
-                  ? Number(value)
-                  : value,
-            });
-          }
-        }
-
+  
         return { ...ex, sets: updatedSets };
       })
     );
+  
+    const token = getToken();
+    const exercise = exercises.find((ex) => ex.id === exerciseId);
+  
+    const setToUpdate = exercise?.sets[setIndex];
+    if (!setToUpdate?.id || !token) return;
+  
+    try {
+      await updateWorkoutSet(setToUpdate.id, token, {
+        [field]:
+          field === "order"
+            ? Math.max(1, Number(value) || 1)
+            : field === "weight" || field === "reps"
+              ? Number(value)
+              : value,
+      });
+  
+      // 👇 Buscar novamente os dados atualizados do exercício
+      const workoutRes = await getWorkoutExercisesByWorkoutId(
+        Number(sessionId),
+        token
+      );
+  
+      const formatted = workoutRes.map((item: any) => ({
+        id: Date.now() + item.id,
+        backendId: item.id,
+        exerciseId: item.exercise.id.toString(),
+        sets: (item.workout_sets || [])
+          .sort((a: any, b: any) => a.order - b.order) // garante que vem ordenado
+          .map((s: any) => ({
+            id: s.id,
+            reps: s.reps?.toString() || "0",
+            weight: s.weight?.toString() || "0",
+            set_type: s.set_type || "Work",
+            order: s.order || 1,
+          })),
+      }));
+  
+      setExercises((prev) =>
+        prev.map((ex) =>
+          ex.backendId === exercise?.backendId
+            ? formatted.find((f) => f.backendId === ex.backendId) || ex
+            : ex
+        )
+      );
+    } catch (err) {
+      console.error("Erro ao atualizar set:", err);
+    }
   };
+  
 
   const handleFinalize = () => {
     router.push("/sessions");

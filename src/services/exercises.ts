@@ -101,14 +101,23 @@ export async function updateExercise(
     body: JSON.stringify(updates),
   });
 
-  const data = await res.json();
+  const contentType = res.headers.get("Content-Type");
 
-  if (!res.ok)
-    throw new Error(
-      data.error || data.message || "Erro ao atualizar exercício"
-    );
+  if (contentType && contentType.includes("application/json")) {
+    const data = await res.json();
 
-  return data;
+    if (!res.ok) {
+      throw new Error(
+        data.error || data.message || "Erro ao atualizar exercício"
+      );
+    }
+
+    return data;
+  } else {
+    const text = await res.text();
+    console.error("Resposta inesperada do servidor:", text);
+    throw new Error("Resposta inesperada do servidor");
+  }
 }
 
 export async function searchExercise(query: string, token: string) {
