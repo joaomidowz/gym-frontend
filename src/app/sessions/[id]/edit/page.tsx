@@ -193,21 +193,21 @@ export default function EditSession() {
     setExercises((prev) =>
       prev.map((ex) => {
         if (ex.id !== exerciseId) return ex;
-  
+
         const updatedSets = [...ex.sets];
         const updatedSet = { ...updatedSets[setIndex], [field]: value };
         updatedSets[setIndex] = updatedSet;
-  
+
         return { ...ex, sets: updatedSets };
       })
     );
-  
+
     const token = getToken();
     const exercise = exercises.find((ex) => ex.id === exerciseId);
-  
+
     const setToUpdate = exercise?.sets[setIndex];
     if (!setToUpdate?.id || !token) return;
-  
+
     try {
       await updateWorkoutSet(setToUpdate.id, token, {
         [field]:
@@ -217,13 +217,13 @@ export default function EditSession() {
               ? Number(value)
               : value,
       });
-  
+
       // 👇 Buscar novamente os dados atualizados do exercício
       const workoutRes = await getWorkoutExercisesByWorkoutId(
         Number(sessionId),
         token
       );
-  
+
       const formatted = workoutRes.map((item: any) => ({
         id: Date.now() + item.id,
         backendId: item.id,
@@ -238,7 +238,7 @@ export default function EditSession() {
             order: s.order || 1,
           })),
       }));
-  
+
       setExercises((prev) =>
         prev.map((ex) =>
           ex.backendId === exercise?.backendId
@@ -250,7 +250,7 @@ export default function EditSession() {
       console.error("Erro ao atualizar set:", err);
     }
   };
-  
+
 
   const handleFinalize = () => {
     router.push("/sessions");
@@ -293,39 +293,109 @@ export default function EditSession() {
             {ex.sets.map((set, idx) => (
               <div key={idx} className="flex flex-col mb-2">
                 <div className="flex gap-2">
-                  <div className="w-1/3">
-                    <label className="block text-xs mb-1">Ordem</label>
-                    <input
-                      type="number"
-                      value={set.order || 1}
-                      onChange={(e) =>
-                        updateSet(ex.id, idx, "order", e.target.value)
-                      }
-                      className="w-full border border-primary p-2 rounded-xl"
-                    />
+                  <div className="flex gap-2">
+                    {/* ORDEM */}
+                    <div className="w-1/3">
+                      <label className="block text-xs mb-1">Ordem</label>
+                      <div className="flex items-center border border-primary rounded-xl overflow-hidden">
+                        <button
+                          className="px-2 text-lg text-primary"
+                          onClick={() => {
+                            const val = Math.max(1, parseInt(set.order?.toString() || "1") - 1);
+                            updateSet(ex.id, idx, "order", val.toString());
+                          }}
+                        >
+                          −
+                        </button>
+                        <input
+                          type="text"
+                          value={set.order?.toString() || "1"}
+                          onChange={(e) => updateSet(ex.id, idx, "order", e.target.value)}
+                          className="w-full p-2 text-center outline-none"
+                          inputMode="numeric"
+                          pattern="[0-9]*"
+                        />
+                        <button
+                          className="px-2 text-lg text-primary"
+                          onClick={() => {
+                            const val = parseInt(set.order?.toString() || "1") + 1;
+                            updateSet(ex.id, idx, "order", val.toString());
+                          }}
+                        >
+                          +
+                        </button>
+                      </div>
+                    </div>
+
+
+
+                    {/* REPETIÇÕES */}
+                    <div className="w-1/3">
+                      <label className="block text-xs mb-1">Repetições</label>
+                      <div className="flex items-center border border-primary rounded-xl overflow-hidden">
+                        <button
+                          className="px-2 text-lg text-primary"
+                          onClick={() => {
+                            const val = Math.max(0, parseInt(set.reps || "0") - 1);
+                            updateSet(ex.id, idx, "reps", val.toString());
+                          }}
+                        >
+                          −
+                        </button>
+                        <input
+                          type="text"
+                          value={set.reps}
+                          onChange={(e) => updateSet(ex.id, idx, "reps", e.target.value)}
+                          className="w-full p-2 text-center outline-none"
+                          inputMode="numeric"
+                          pattern="[0-9]*"
+                        />
+                        <button
+                          className="px-2 text-lg text-primary"
+                          onClick={() => {
+                            const val = Math.max(0, parseInt(set.reps || "0") + 1);
+                            updateSet(ex.id, idx, "reps", val.toString());
+                          }}
+                        >
+                          +
+                        </button>
+                      </div>
+                    </div>
+
+                    {/* PESO */}
+                    <div className="w-1/3">
+                      <label className="block text-xs mb-1">Peso (kg)</label>
+                      <div className="flex items-center border border-primary rounded-xl overflow-hidden">
+                        <button
+                          className="px-2 text-lg text-primary"
+                          onClick={() => {
+                            const val = Math.max(0, parseFloat(set.weight || "0") - 1);
+                            updateSet(ex.id, idx, "weight", val.toString());
+                          }}
+                        >
+                          −
+                        </button>
+                        <input
+                          type="text"
+                          value={set.weight}
+                          onChange={(e) => updateSet(ex.id, idx, "weight", e.target.value)}
+                          className="w-full p-2 text-center outline-none"
+                          inputMode="decimal"
+                          pattern="[0-9]*"
+                        />
+                        <button
+                          className="px-2 text-lg text-primary"
+                          onClick={() => {
+                            const val = Math.max(0, parseFloat(set.weight || "0") + 1);
+                            updateSet(ex.id, idx, "weight", val.toString());
+                          }}
+                        >
+                          +
+                        </button>
+                      </div>
+                    </div>
                   </div>
-                  <div className="w-1/3">
-                    <label className="block text-xs mb-1">Repetições</label>
-                    <input
-                      type="number"
-                      value={set.reps || "0"}
-                      onChange={(e) =>
-                        updateSet(ex.id, idx, "reps", e.target.value)
-                      }
-                      className="w-full border border-primary p-2 rounded-xl"
-                    />
-                  </div>
-                  <div className="w-1/3">
-                    <label className="block text-xs mb-1">Peso (kg)</label>
-                    <input
-                      type="number"
-                      value={set.weight || "0"}
-                      onChange={(e) =>
-                        updateSet(ex.id, idx, "weight", e.target.value)
-                      }
-                      className="w-full border border-primary p-2 rounded-xl"
-                    />
-                  </div>
+
                 </div>
                 <div className="mt-1 flex items-center gap-2">
                   <select
