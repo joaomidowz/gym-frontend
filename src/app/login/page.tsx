@@ -4,6 +4,7 @@ import { useRouter } from "next/navigation";
 import { useAuth } from "@/hooks/useAuth";
 import Footer from "@/components/footer";
 import ErrorNotify from "@/components/errorNotify";
+import Link from "next/link";
 
 export default function Login() {
     const [email, setEmail] = useState("")
@@ -40,7 +41,10 @@ export default function Login() {
                 </div>
 
                 <button type="submit" className="bg-primary rounded-2xl text-white text-xl py-3 px-6 hover:bg-primary/80 transition">Login</button>
-
+                <Link href="/register">
+                <p className="text-primary text-xl underline cursor-pointer">Registrar-se</p>
+                </Link>
+                
             </form>
             <Footer />
         </div>

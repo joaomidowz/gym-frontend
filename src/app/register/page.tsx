@@ -5,6 +5,7 @@ import { useRouter } from "next/navigation";
 import { useAuth } from "@/hooks/useAuth";
 import Footer from "@/components/footer";
 import ErrorNotify from "@/components/errorNotify";
+import Link from "next/link";
 
 export default function Register() {
     const [name, setName] = useState("");
@@ -114,6 +115,9 @@ export default function Register() {
                 >
                     Registrar
                 </button>
+                <Link href="/login">
+                <p className="text-primary text-xl underline cursor-pointer">Login</p>
+                </Link>
             </form>
 
             <Footer />
