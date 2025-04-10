@@ -28,9 +28,12 @@ export default function ViewSessionPage() {
         getExercises(token),
         getWorkoutExercisesByWorkoutId(Number(sessionId), token),
         getWorkoutSessionById(Number(sessionId), token),
+        
       ]);
 
       setOwner(sessionRes.owner);
+
+      setExerciseOptions(exerciseRes); 
 
 
       const formatted = workoutRes.map((item: any) => ({
