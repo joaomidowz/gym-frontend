@@ -41,7 +41,7 @@ export async function createWorkoutSet(
   token: string,
   data: {
     workout_exercise_id: number;
-    workout_session_id: Number;
+    workout_session_id: number;
     weight: number;
     reps: number;
     set_type: string;
