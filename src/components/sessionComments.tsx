@@ -2,10 +2,13 @@
 
 import { useEffect, useState } from "react";
 import { getCommentsBySession, commentSession, deleteComment } from "@/services/social";
-import { getToken } from "@/utils/storage";
+import { getToken, getUser } from "@/utils/storage";
+import { motion, AnimatePresence } from "framer-motion";
+import { X } from "lucide-react";
 
 type Props = {
   sessionId: number;
+  showDeleteForUserId?: number | null;
 };
 
 type Comment = {
@@ -22,8 +25,13 @@ export default function SessionComments({ sessionId }: Props) {
   const [comments, setComments] = useState<Comment[]>([]);
   const [newComment, setNewComment] = useState("");
   const [loading, setLoading] = useState(true);
+  const [currentUserId, setCurrentUserId] = useState<number | null>(null);
 
   useEffect(() => {
+    const user = getUser();
+    if (user?.id) {
+      setCurrentUserId(user.id);
+    }
     fetchComments();
   }, [sessionId]);
 
@@ -88,20 +96,36 @@ export default function SessionComments({ sessionId }: Props) {
         <p>Carregando...</p>
       ) : (
         <div className="space-y-2">
-          {comments.length === 0 && <p className="text-sm text-gray-500">Nenhum comentário ainda.</p>}
-          {comments.map((c) => (
-            <div key={c.id} className="border border-primary p-3 rounded-xl text-sm relative">
-              <p className="font-semibold">{c.user.name}</p>
-              <p>{c.content}</p>
-              <p className="text-xs text-gray-400">{new Date(c.createdAt).toLocaleString()}</p>
-              <button
-                onClick={() => handleDelete(c.id)}
-                className="absolute top-2 right-2 text-xs text-red-500"
+          {comments.length === 0 && (
+            <p className="text-sm text-gray-500">Nenhum comentário ainda.</p>
+          )}
+          <AnimatePresence>
+            {comments.map((c) => (
+              <motion.div
+                key={c.id}
+                initial={{ opacity: 0, y: 10 }}
+                animate={{ opacity: 1, y: 0 }}
+                exit={{ opacity: 0, x: -20 }}
+                className="border border-primary p-3 rounded-xl text-sm relative"
               >
-                Excluir
-              </button>
-            </div>
-          ))}
+                <p className="font-semibold">{c.user.name}</p>
+                <p>{c.content}</p>
+                <p className="text-xs text-gray-400 mt-1">
+                  {new Date(c.createdAt).toLocaleString()}
+                </p>
+
+                {currentUserId === c.user.id && (
+                  <button
+                    onClick={() => handleDelete(c.id)}
+                    className="absolute top-2 right-2 bg-red-500 text-white p-1 rounded-full hover:scale-105 transition"
+                    title="Excluir comentário"
+                  >
+                    <X size={14} />
+                  </button>
+                )}
+              </motion.div>
+            ))}
+          </AnimatePresence>
         </div>
       )}
     </div>

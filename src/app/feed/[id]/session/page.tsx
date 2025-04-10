@@ -9,8 +9,8 @@ import { motion } from "framer-motion";
 import { getWorkoutSessionById } from "@/services/workoutSession";
 import SessionComments from "@/components/sessionComments";
 import Link from "next/link";
-
-
+import SessionViewCard from "@/components/sessionViewCard";
+import { format } from "date-fns";
 
 export default function ViewSessionPage() {
   const { id: sessionId } = useParams();
@@ -18,6 +18,10 @@ export default function ViewSessionPage() {
   const [exercises, setExercises] = useState<any[]>([]);
   const [exerciseOptions, setExerciseOptions] = useState<any[]>([]);
   const [owner, setOwner] = useState<{ id: number; name: string } | null>(null);
+  const [createdAt, setCreatedAt] = useState<string | null>(null);
+  const [sessionTitle, setSessionTitle] = useState<string>("Sessão");
+  const [userId, setUserId] = useState<number | null>(null);
+  const [notes, setNotes] = useState<string | null>(null);
 
   useEffect(() => {
     const fetchData = async () => {
@@ -28,13 +32,14 @@ export default function ViewSessionPage() {
         getExercises(token),
         getWorkoutExercisesByWorkoutId(Number(sessionId), token),
         getWorkoutSessionById(Number(sessionId), token),
-        
       ]);
 
+      setNotes(sessionRes.notes || null);
       setOwner(sessionRes.owner);
-
-      setExerciseOptions(exerciseRes); 
-
+      setCreatedAt(sessionRes.createdAt);
+      setSessionTitle(sessionRes.title || "Sessão");
+      setExerciseOptions(exerciseRes);
+      setUserId(sessionRes.currentUserId);
 
       const formatted = workoutRes.map((item: any) => ({
         id: item.id,
@@ -43,29 +48,40 @@ export default function ViewSessionPage() {
       }));
 
       setExercises(formatted);
-      console.log("sessionRes", sessionRes);
     };
 
     fetchData();
   }, [sessionId]);
 
-
-
-
   return (
     <div className="flex flex-col items-center p-6 max-w-md mx-auto text-primary pb-32">
       <div className="w-full flex justify-between items-start mb-4">
         <div>
-          <h1 className="text-2xl font-bold">Visualizar Sessão</h1>
+          <h1 className="text-2xl font-bold">{sessionTitle}</h1>
           {owner && (
             <p className="text-sm text-gray-500">
-              Sessão de{" "}
+              Sessão de {" "}
               <Link
                 href={`/profile/${owner.id}/user`}
                 className="text-primary font-semibold hover:underline"
               >
                 {owner.name}
               </Link>
+            </p>
+          )}
+          {notes && (
+            <motion.p
+              initial={{ opacity: 0, y: 5 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.3 }}
+              className="text-lg text-gray-400 mt-1 italic"
+            >
+              Notas📝:  {notes}
+            </motion.p>
+          )}
+          {createdAt && (
+            <p className="text-xs text-gray-400 mt-1">
+              Criado em: {format(new Date(createdAt), "dd/MM/yyyy")}
             </p>
           )}
         </div>
@@ -77,47 +93,51 @@ export default function ViewSessionPage() {
         </button>
       </div>
 
-      <div className="w-full space-y-6">
+      <motion.div
+        layout
+        className="w-full space-y-6"
+        initial="hidden"
+        animate="show"
+        variants={{
+          hidden: { opacity: 0, y: 20 },
+          show: {
+            opacity: 1,
+            y: 0,
+            transition: { staggerChildren: 0.1 },
+          },
+        }}
+      >
         {exercises.map((ex) => (
           <motion.div
             key={ex.id}
-            initial={{ opacity: 0, y: 10 }}
+            initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
-            className="border-2 border-primary rounded-xl p-4"
+            transition={{ duration: 0.4, ease: "easeOut" }}
           >
-            <div className="mb-2 font-semibold text-primary">
-              {
-                exerciseOptions.find((op: any) => op.id === ex.exerciseId)
-                  ?.name || "Exercício"
+            <SessionViewCard
+              exerciseName={
+                exerciseOptions.find((op: any) => op.id === ex.exerciseId)?.name ||
+                "Exercício"
               }
-            </div>
-
-            {ex.sets.map((set: any, idx: number) => (
-              <div key={idx} className="flex flex-col mb-2 text-sm">
-                <div className="flex gap-2">
-                  <div className="w-1/3">
-                    <p className="text-xs text-gray-500 mb-1">Ordem</p>
-                    <p>{set.order}</p>
-                  </div>
-                  <div className="w-1/3">
-                    <p className="text-xs text-gray-500 mb-1">Repetições</p>
-                    <p>{set.reps}</p>
-                  </div>
-                  <div className="w-1/3">
-                    <p className="text-xs text-gray-500 mb-1">Peso</p>
-                    <p>{set.weight} kg</p>
-                  </div>
-                </div>
-                <p className="text-xs mt-1">
-                  Tipo: <strong>{set.set_type}</strong>
-                </p>
-              </div>
-            ))}
+              sets={ex.sets}
+            />
           </motion.div>
         ))}
-      </div>
-      <SessionComments sessionId={Number(sessionId)} />
+      </motion.div>
 
+      <motion.div
+        initial={{ opacity: 0, y: 20 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ delay: 0.3 }}
+        className="w-full mt-8"
+      >
+        <SessionComments
+          sessionId={Number(sessionId)}
+          showDeleteForUserId={userId}
+        />
+
+
+      </motion.div>
     </div>
   );
 }

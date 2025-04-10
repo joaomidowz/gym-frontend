@@ -96,8 +96,10 @@ export default function SessionPage() {
                             comments_count={session.comments_count}
                             total_sets={session.total_sets}
                             total_weight={session.total_weight}
+                            createdAt={session.createdAt} 
                             onDelete={() => openModal(session.id)}
                         />
+
                     </motion.div>
                 ))}
             </div>

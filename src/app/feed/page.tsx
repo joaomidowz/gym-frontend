@@ -5,9 +5,9 @@ import { getFeed } from "@/services/workoutSession";
 import { getToken } from "@/utils/storage";
 import SearchOverlay from "@/components/searchOverlay";
 import { likeSession, unlikeSession } from "@/services/social";
-import { useRouter } from "next/navigation"; 
+import { useRouter } from "next/navigation";
 import SessionCardFeed from "@/components/sessionCardFeed";
-
+import { motion } from "framer-motion";
 
 type Session = {
     id: number;
@@ -21,9 +21,9 @@ type Session = {
     comments_count: number;
     total_sets: number;
     total_weight: number;
+    createdAt: Date;
     is_liked: boolean;
 };
-
 
 export default function FeedPage() {
     const router = useRouter();
@@ -52,8 +52,6 @@ export default function FeedPage() {
 
         fetchFeed();
     }, []);
-
-
 
     async function handleToggleLike(sessionId: number) {
         const token = getToken();
@@ -96,8 +94,6 @@ export default function FeedPage() {
         }
     }
 
-
-
     return (
         <>
             <SearchOverlay />
@@ -105,23 +101,28 @@ export default function FeedPage() {
                 {loading && <p className="text-primary">Carregando...</p>}
                 {error && <p className="text-red-500">{error}</p>}
                 {sessions.length === 0 && !loading && <p>Nenhuma sessão encontrada.</p>}
-                {sessions.map((session) => (
-                    <SessionCardFeed
-                    key={session.id}
-                    sessionId={session.id} 
-                    title={session.title}
-                    user={session.user}
-                    like_count={session.like_count}
-                    comments_count={session.comments_count}
-                    total_sets={session.total_sets}
-                    total_weight={session.total_weight}
-                    onLike={() => handleToggleLike(session.id)}
-                    isLiked={session.is_liked}
-                    onClick={() => router.push(`/feed/${session.id}/session`)} 
-                  />
-                  
+                {sessions.map((session, index) => (
+                    <motion.div
+                        key={session.id}
+                        initial={{ opacity: 0, y: 50 }}
+                        animate={{ opacity: 1, y: 0 }}
+                        transition={{ delay: index * 0.1, duration: 0.5, ease: "easeOut" }}
+                    >
+                        <SessionCardFeed
+                            sessionId={session.id}
+                            title={session.title}
+                            user={session.user}
+                            like_count={session.like_count}
+                            comments_count={session.comments_count}
+                            total_sets={session.total_sets}
+                            total_weight={session.total_weight}
+                            onLike={() => handleToggleLike(session.id)}
+                            isLiked={session.is_liked}
+                            createdAt={session.createdAt.toString()}
+                            onClick={() => router.push(`/feed/${session.id}/session`)}
+                        />
+                    </motion.div>
                 ))}
-
             </div>
         </>
     );
