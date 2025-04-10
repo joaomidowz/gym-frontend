@@ -25,6 +25,7 @@ type Set = {
   weight: string;
   set_type: string;
   order: number;
+  done?: boolean; // ✅ necessário pro controle de check
 };
 
 type Exercise = {
@@ -64,6 +65,7 @@ export default function EditSession() {
             weight: s.weight?.toString() || "0",
             set_type: s.set_type || "Work",
             order: s.order || 1,
+            done: s.done || false,
           })),
         }));
 
@@ -131,6 +133,7 @@ export default function EditSession() {
                     weight: newSet.set.weight.toString(),
                     set_type: newSet.set.set_type,
                     order: newSet.set.order,
+                    done: false,
                   },
                 ],
               }
@@ -187,14 +190,14 @@ export default function EditSession() {
     exerciseId: number,
     setIndex: number,
     field: keyof Set,
-    value: string
+    value: string | boolean
   ) => {
     setExercises((prev) =>
       prev.map((ex) => {
         if (ex.id !== exerciseId) return ex;
 
         const updatedSets = [...ex.sets];
-        const updatedSet = { ...updatedSets[setIndex], [field]: value };
+        const updatedSet = { ...updatedSets[setIndex], [field]: field === "done" ? Boolean(value) : value };
         updatedSets[setIndex] = updatedSet;
 
         return { ...ex, sets: updatedSets };
@@ -207,14 +210,19 @@ export default function EditSession() {
     if (!setToUpdate?.id || !token) return;
 
     try {
-      await updateWorkoutSet(setToUpdate.id, token, {
+      const payload: any = {
         [field]:
           field === "order"
             ? Math.max(1, Number(value) || 1)
             : field === "weight" || field === "reps"
             ? Number(value)
+            : field === "done"
+            ? Boolean(value === "true" || value === true)
             : value,
-      });
+      };
+      
+      await updateWorkoutSet(setToUpdate.id, token, payload);
+      
     } catch (err) {
       console.error("Erro ao atualizar set:", err);
     }
@@ -243,7 +251,7 @@ export default function EditSession() {
               exerciseOptions.find((op: any) => op.id.toString() === ex.exerciseId)?.name || "Exercício"
             }
             sets={ex.sets}
-            onChange={(index, field, value) => updateSet(ex.id, index, field, value)}
+            onChange={(index, field, value) => updateSet(ex.id, index, field as keyof Set, value)}
             onRemoveSet={(index) => deleteSet(ex.id, index)}
             onAddSet={() => addSet(ex.id)}
             onRemoveExercise={() => removeExercise(ex.id)}

@@ -47,8 +47,11 @@ export async function updateWorkoutSet(
   setId: number,
   token: string,
   set: {
-    weight: number;
-    reps: number;
+    weight?: number;
+    reps?: number;
+    set_type?: string;
+    order?: number;
+    done?: string | boolean;
   }
 ) {
   const res = await fetch(`${API_URL}/workout-set/${setId}`, {
