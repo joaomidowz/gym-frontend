@@ -1,3 +1,5 @@
+// removed automatic refresh from updateSet
+
 "use client";
 
 import { useEffect, useState } from "react";
@@ -12,8 +14,8 @@ import {
   getWorkoutExercisesByWorkoutId,
   updateWorkoutSet,
 } from "@/services/workoutExercise";
-import { motion } from "framer-motion";
 import ExerciseSearch from "@/components/exerciseSearch";
+import CardEditSession from "@/components/cardEditSession";
 
 const setTypes = ["Warmup", "Feeder", "Work", "Top"];
 
@@ -105,7 +107,6 @@ export default function EditSession() {
 
     try {
       let workoutExerciseId = ex.backendId;
-
       if (!workoutExerciseId) return;
 
       const newSet = await createWorkoutSet(token, {
@@ -121,18 +122,18 @@ export default function EditSession() {
         prev.map((e) =>
           e.id === exerciseId
             ? {
-              ...e,
-              sets: [
-                ...e.sets,
-                {
-                  id: newSet.set.id,
-                  reps: newSet.set.reps.toString(),
-                  weight: newSet.set.weight.toString(),
-                  set_type: newSet.set.set_type,
-                  order: newSet.set.order,
-                },
-              ],
-            }
+                ...e,
+                sets: [
+                  ...e.sets,
+                  {
+                    id: newSet.set.id,
+                    reps: newSet.set.reps.toString(),
+                    weight: newSet.set.weight.toString(),
+                    set_type: newSet.set.set_type,
+                    order: newSet.set.order,
+                  },
+                ],
+              }
             : e
         )
       );
@@ -146,7 +147,6 @@ export default function EditSession() {
     if (!ex) return;
 
     const setToDelete = ex.sets[index];
-
     if (setToDelete?.id) {
       try {
         const token = getToken();
@@ -171,7 +171,6 @@ export default function EditSession() {
     setExercises((prev) => prev.filter((ex) => ex.id !== exerciseId));
 
     const backendId = exercises.find((ex) => ex.id === exerciseId)?.backendId;
-
     if (!backendId) return;
 
     const token = getToken();
@@ -204,7 +203,6 @@ export default function EditSession() {
 
     const token = getToken();
     const exercise = exercises.find((ex) => ex.id === exerciseId);
-
     const setToUpdate = exercise?.sets[setIndex];
     if (!setToUpdate?.id || !token) return;
 
@@ -214,43 +212,13 @@ export default function EditSession() {
           field === "order"
             ? Math.max(1, Number(value) || 1)
             : field === "weight" || field === "reps"
-              ? Number(value)
-              : value,
+            ? Number(value)
+            : value,
       });
-
-      // 👇 Buscar novamente os dados atualizados do exercício
-      const workoutRes = await getWorkoutExercisesByWorkoutId(
-        Number(sessionId),
-        token
-      );
-
-      const formatted = workoutRes.map((item: any) => ({
-        id: Date.now() + item.id,
-        backendId: item.id,
-        exerciseId: item.exercise.id.toString(),
-        sets: (item.workout_sets || [])
-          .sort((a: any, b: any) => a.order - b.order) // garante que vem ordenado
-          .map((s: any) => ({
-            id: s.id,
-            reps: s.reps?.toString() || "0",
-            weight: s.weight?.toString() || "0",
-            set_type: s.set_type || "Work",
-            order: s.order || 1,
-          })),
-      }));
-
-      setExercises((prev) =>
-        prev.map((ex) =>
-          ex.backendId === exercise?.backendId
-            ? formatted.find((f) => f.backendId === ex.backendId) || ex
-            : ex
-        )
-      );
     } catch (err) {
       console.error("Erro ao atualizar set:", err);
     }
   };
-
 
   const handleFinalize = () => {
     router.push("/sessions");
@@ -269,165 +237,17 @@ export default function EditSession() {
 
       <div className="w-full space-y-6">
         {exercises.map((ex) => (
-          <motion.div
+          <CardEditSession
             key={ex.id}
-            initial={{ opacity: 0, y: 10 }}
-            animate={{ opacity: 1, y: 0 }}
-            className="border-2 border-primary rounded-xl p-4"
-          >
-            <div className="flex justify-between items-center mb-2">
-              <p className="font-semibold text-primary">
-                {
-                  exerciseOptions.find((op: any) => op.id.toString() === ex.exerciseId)
-                    ?.name || "Exercício"
-                }
-              </p>
-              <button
-                className="ml-2 text-red-500 font-bold"
-                onClick={() => removeExercise(ex.id)}
-              >
-                X
-              </button>
-            </div>
-
-            {ex.sets.map((set, idx) => (
-              <div key={idx} className="flex flex-col mb-2">
-                <div className="flex gap-2">
-                  <div className="flex gap-2">
-                    {/* ORDEM */}
-                    <div className="w-1/3">
-                      <label className="block text-xs mb-1">Ordem</label>
-                      <div className="flex items-center border border-primary rounded-xl overflow-hidden">
-                        <button
-                          className="px-2 text-lg text-primary"
-                          onClick={() => {
-                            const val = Math.max(1, parseInt(set.order?.toString() || "1") - 1);
-                            updateSet(ex.id, idx, "order", val.toString());
-                          }}
-                        >
-                          −
-                        </button>
-                        <input
-                          type="text"
-                          value={set.order?.toString() || "1"}
-                          onChange={(e) => updateSet(ex.id, idx, "order", e.target.value)}
-                          className="w-full p-2 text-center outline-none"
-                          inputMode="numeric"
-                          pattern="[0-9]*"
-                        />
-                        <button
-                          className="px-2 text-lg text-primary"
-                          onClick={() => {
-                            const val = parseInt(set.order?.toString() || "1") + 1;
-                            updateSet(ex.id, idx, "order", val.toString());
-                          }}
-                        >
-                          +
-                        </button>
-                      </div>
-                    </div>
-
-
-
-                    {/* REPETIÇÕES */}
-                    <div className="w-1/3">
-                      <label className="block text-xs mb-1">Repetições</label>
-                      <div className="flex items-center border border-primary rounded-xl overflow-hidden">
-                        <button
-                          className="px-2 text-lg text-primary"
-                          onClick={() => {
-                            const val = Math.max(0, parseInt(set.reps || "0") - 1);
-                            updateSet(ex.id, idx, "reps", val.toString());
-                          }}
-                        >
-                          −
-                        </button>
-                        <input
-                          type="text"
-                          value={set.reps}
-                          onChange={(e) => updateSet(ex.id, idx, "reps", e.target.value)}
-                          className="w-full p-2 text-center outline-none"
-                          inputMode="numeric"
-                          pattern="[0-9]*"
-                        />
-                        <button
-                          className="px-2 text-lg text-primary"
-                          onClick={() => {
-                            const val = Math.max(0, parseInt(set.reps || "0") + 1);
-                            updateSet(ex.id, idx, "reps", val.toString());
-                          }}
-                        >
-                          +
-                        </button>
-                      </div>
-                    </div>
-
-                    {/* PESO */}
-                    <div className="w-1/3">
-                      <label className="block text-xs mb-1">Peso (kg)</label>
-                      <div className="flex items-center border border-primary rounded-xl overflow-hidden">
-                        <button
-                          className="px-2 text-lg text-primary"
-                          onClick={() => {
-                            const val = Math.max(0, parseFloat(set.weight || "0") - 1);
-                            updateSet(ex.id, idx, "weight", val.toString());
-                          }}
-                        >
-                          −
-                        </button>
-                        <input
-                          type="text"
-                          value={set.weight}
-                          onChange={(e) => updateSet(ex.id, idx, "weight", e.target.value)}
-                          className="w-full p-2 text-center outline-none"
-                          inputMode="decimal"
-                          pattern="[0-9]*"
-                        />
-                        <button
-                          className="px-2 text-lg text-primary"
-                          onClick={() => {
-                            const val = Math.max(0, parseFloat(set.weight || "0") + 1);
-                            updateSet(ex.id, idx, "weight", val.toString());
-                          }}
-                        >
-                          +
-                        </button>
-                      </div>
-                    </div>
-                  </div>
-
-                </div>
-                <div className="mt-1 flex items-center gap-2">
-                  <select
-                    value={set.set_type}
-                    onChange={(e) =>
-                      updateSet(ex.id, idx, "set_type", e.target.value)
-                    }
-                    className="w-full border border-primary p-2 rounded-xl"
-                  >
-                    {setTypes.map((type) => (
-                      <option key={type} value={type}>
-                        {type}
-                      </option>
-                    ))}
-                  </select>
-                  <button
-                    onClick={() => deleteSet(ex.id, idx)}
-                    className="text-red-500 font-bold text-xs"
-                  >
-                    Remover
-                  </button>
-                </div>
-              </div>
-            ))}
-
-            <button
-              onClick={() => addSet(ex.id)}
-              className="text-primary underline text-sm mt-2"
-            >
-              + Adicionar set
-            </button>
-          </motion.div>
+            exerciseName={
+              exerciseOptions.find((op: any) => op.id.toString() === ex.exerciseId)?.name || "Exercício"
+            }
+            sets={ex.sets}
+            onChange={(index, field, value) => updateSet(ex.id, index, field, value)}
+            onRemoveSet={(index) => deleteSet(ex.id, index)}
+            onAddSet={() => addSet(ex.id)}
+            onRemoveExercise={() => removeExercise(ex.id)}
+          />
         ))}
       </div>
 
@@ -438,7 +258,6 @@ export default function EditSession() {
         Finalizar sessão
       </button>
 
-      {/* Exercício Search Modal */}
       <ExerciseSearch
         isOpen={showExerciseSearch}
         onClose={() => setShowExerciseSearch(false)}
