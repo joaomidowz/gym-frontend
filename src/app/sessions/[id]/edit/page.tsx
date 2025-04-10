@@ -18,8 +18,6 @@ import ExerciseSearch from "@/components/exerciseSearch";
 import CardEditSession from "@/components/cardEditSession";
 import { AnimatePresence, motion } from "framer-motion";
 
-const setTypes = ["Warmup", "Feeder", "Work", "Top"];
-
 type Set = {
   id?: number;
   reps: string;
@@ -109,7 +107,7 @@ export default function EditSession() {
     if (!token || !ex || !sessionId || !ex.exerciseId) return;
 
     try {
-      let workoutExerciseId = ex.backendId;
+      const workoutExerciseId = ex.backendId;
       if (!workoutExerciseId) return;
 
       const newSet = await createWorkoutSet(token, {
