@@ -51,6 +51,21 @@ export async function getExercises(token: string) {
   return data;
 }
 
+export async function getExercisesAdmin(token: string) {
+  const res = await fetch(`${API_URL}/exercises/admin/exercises`, {
+    headers: {
+      Authorization: `Bearer ${token}`,
+    },
+  });
+
+  const data = await res.json();
+  if (!res.ok)
+    throw new Error(
+      data.error || data.message || "Erro ao buscar exercícios (admin)"
+    );
+  return data;
+}
+
 export async function deleteExercise(exerciseId: number, token: string) {
   const res = await fetch(`${API_URL}/exercises/${exerciseId}`, {
     method: "DELETE",

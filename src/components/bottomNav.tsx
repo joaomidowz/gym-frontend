@@ -2,26 +2,24 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { FaHome, FaListUl, FaUser } from "react-icons/fa";
+import { FaHome, FaListUl, FaUser, FaTools } from "react-icons/fa";
 import { useAuth } from "@/hooks/useAuth";
-
-
 
 const navItems = [
     { href: "/feed", icon: FaHome, label: "Home" },
     { href: "/sessions", icon: FaListUl, label: "Sessões" },
     { href: "/profile", icon: FaUser, label: "Perfil" },
-]
+];
 
 export default function BottomNav() {
-    const pathname = usePathname()
-    const { isAuthenticated, loading } = useAuth()
+    const pathname = usePathname();
+    const { user, isAuthenticated, loading } = useAuth();
 
-    if (loading || !isAuthenticated) return null
+    if (loading || !isAuthenticated) return null;
 
     return (
         <nav className="fixed bottom-0 w-full bg-secundary border-t border-secundary flex justify-around py-2 z-50">
-            {navItems.map(({ href, icon: Icon, label }) => {
+            {[...navItems, ...(user?.is_admin ? [{ href: "/admin", icon: FaTools, label: "Admin" }] : [])].map(({ href, icon: Icon, label }) => {
                 const isActive = pathname === href;
 
                 return (
@@ -31,9 +29,8 @@ export default function BottomNav() {
                             {label}
                         </span>
                     </Link>
-                )
+                );
             })}
-
         </nav>
-    )
+    );
 }

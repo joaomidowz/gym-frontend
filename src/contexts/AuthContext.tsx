@@ -17,13 +17,17 @@ import {
   registerUser
 } from "@/services/auth"
 
+// src/contexts/AuthContext.tsx
 type User = {
-  id: number,
-  name: string,
-  email: string,
-  height_cm?: number,
-  weight_kg?: number
-}
+  id: number;
+  name: string;
+  email: string;
+  height_cm?: number;
+  weight_kg?: number;
+  is_public?: boolean;
+  is_admin?: boolean;
+};
+
 
 type AuthContextType = {
   user: User | null,
