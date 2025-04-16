@@ -37,6 +37,7 @@ export async function updateUser(
     weight_kg?: number;
     current_password?: string;
     new_password?: string;
+    is_public?: boolean;
   }
 ) {
   const res = await fetch(`${API_URL}/user/${id}`, {

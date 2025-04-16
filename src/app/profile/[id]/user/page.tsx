@@ -25,7 +25,7 @@ export default function PublicProfilePage() {
       try {
         const userData = await getUserById(Number(id), token);
         const sessions = await getSessionsByUserId(Number(id), token);
-        const streakData = await getUserStreakById(Number(id)); // ✅
+        const streakData = await getUserStreakById(Number(id)); 
 
         setUser(userData);
         setSessionCount(sessions.length);

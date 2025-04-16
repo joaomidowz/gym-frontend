@@ -8,6 +8,7 @@ import {
     getFollowersCount,
     getFollowingCount,
 } from "@/services/follow";
+import { updateUser } from "@/services/user";
 import { UserListModal } from "./userListModal";
 import { EditProfileModal } from "./editProfileModal";
 import { SuccessToast } from "./successToast";
@@ -19,6 +20,7 @@ type Props = {
         email: string;
         height_cm?: number;
         weight_kg?: number;
+        is_public?: boolean;
     };
     isOwnProfile: boolean;
     sessionCount: number;
@@ -37,6 +39,7 @@ export function UserProfile({ user, isOwnProfile, sessionCount, streak }: Props)
     const [showEditModal, setShowEditModal] = useState(false);
     const [showToast, setShowToast] = useState(false);
     const [localUser, setLocalUser] = useState(user);
+    const [isPublic, setIsPublic] = useState(user.is_public ?? true);
 
     const token = getToken();
 
@@ -67,6 +70,19 @@ export function UserProfile({ user, isOwnProfile, sessionCount, streak }: Props)
         }
     };
 
+    const handleTogglePrivacy = async () => {
+        if (!token) return;
+        try {
+            const updated = await updateUser(localUser.id, token, {
+                is_public: !isPublic,
+            });
+            setIsPublic(updated.user.is_public);
+            setShowToast(true);
+        } catch (error) {
+            console.error("Erro ao atualizar privacidade do perfil:", error);
+        }
+    };
+
     useEffect(() => {
         loadFollowInfo();
     }, [user.id]);
@@ -94,12 +110,22 @@ export function UserProfile({ user, isOwnProfile, sessionCount, streak }: Props)
                 </div>
 
                 {isOwnProfile && (
-                    <button
-                        onClick={() => setShowEditModal(true)}
-                        className="mt-4 px-4 py-2 bg-primary text-white text-sm rounded-xl hover:bg-primary/90 transition"
-                    >
-                        Editar perfil
-                    </button>
+                    <>
+                        <button
+                            onClick={() => setShowEditModal(true)}
+                            className="mt-4 px-4 py-2 bg-primary text-white text-sm rounded-xl hover:bg-primary/90 transition"
+                        >
+                            Editar perfil
+                        </button>
+
+                        <button
+                            onClick={handleTogglePrivacy}
+                            className={`mt-2 px-4 py-2 rounded-xl text-sm font-medium transition-all ${isPublic ? "bg-green-500 text-white" : "bg-gray-400 text-white"
+                                }`}
+                        >
+                            {isPublic ? "Perfil público" : "Perfil privado"}
+                        </button>
+                    </>
                 )}
             </div>
 
@@ -129,7 +155,7 @@ export function UserProfile({ user, isOwnProfile, sessionCount, streak }: Props)
                     </p>
                     {streak?.last_workout_date && (
                         <p className="text-xs mt-1 text-gray-400">
-                            Último treino:{" "}
+                            Último treino: {" "}
                             {new Date(streak.last_workout_date).toLocaleDateString("pt-BR")}
                         </p>
                     )}
