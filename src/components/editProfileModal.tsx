@@ -3,6 +3,7 @@
 import { useState } from "react";
 import { getToken } from "@/utils/storage";
 import { SuccessToast } from "./successToast";
+import { deleteUser } from "@/services/user";
 
 type Props = {
   userId: number;
@@ -24,20 +25,16 @@ export function EditProfileModal({
   const [height, setHeight] = useState(currentHeight || "");
   const [weight, setWeight] = useState(currentWeight || "");
   const [email, setEmail] = useState(currentEmail || "");
-
   const [showToast, setShowToast] = useState(false);
-
   const [currentPassword, setCurrentPassword] = useState("");
   const [newPassword, setNewPassword] = useState("");
-
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
+  const [confirmDelete, setConfirmDelete] = useState(false);
+  const [deletePassword, setDeletePassword] = useState("");
 
   const handleSave = async () => {
-    console.log("Iniciando handleSave...");
     const token = getToken();
-    console.log("Token localStorage:", token);
-
     setLoading(true);
     setError("");
 
@@ -45,7 +42,6 @@ export function EditProfileModal({
       if (!token) throw new Error("Token ausente.");
 
       const body: any = {};
-
       if (height) body.height_cm = Number(height);
       if (weight) body.weight_kg = Number(weight);
       if (email) body.email = email;
@@ -75,10 +71,7 @@ export function EditProfileModal({
       });
 
       const data = await res.json();
-
-      if (!res.ok) {
-        throw new Error(data.error || "Erro ao atualizar.");
-      }
+      if (!res.ok) throw new Error(data.error || "Erro ao atualizar.");
 
       onSuccess({
         height_cm: data.user.height_cm,
@@ -91,6 +84,18 @@ export function EditProfileModal({
       setError(err.message || "Erro desconhecido");
     } finally {
       setLoading(false);
+    }
+  };
+
+  const handleDelete = async () => {
+    const token = getToken();
+    if (!token) return;
+
+    try {
+      await deleteUser(userId, token, deletePassword);
+      window.location.href = "/";
+    } catch (error: any) {
+      setError(error.message || "Erro ao excluir conta.");
     }
   };
 
@@ -167,6 +172,32 @@ export function EditProfileModal({
             {loading ? "Salvando..." : "Salvar"}
           </button>
         </div>
+
+        {confirmDelete ? (
+          <div className="mt-4">
+            <label className="text-sm text-gray-700">Digite sua senha para confirmar:</label>
+            <input
+              type="password"
+              value={deletePassword}
+              onChange={(e) => setDeletePassword(e.target.value)}
+              className="w-full mt-1 px-3 py-2 border rounded-xl text-sm"
+            />
+            <button
+              onClick={handleDelete}
+              className="mt-2 w-full bg-red-500 text-white py-2 rounded-xl text-sm"
+            >
+              Confirmar exclusão
+            </button>
+          </div>
+        ) : (
+          <button
+            onClick={() => setConfirmDelete(true)}
+            className="mt-4 w-full bg-red-500 text-white py-2 rounded-xl text-sm"
+          >
+            Excluir conta
+          </button>
+        )}
+
         {showToast && <SuccessToast message="Perfil atualizado com sucesso!" />}
       </div>
     </div>
