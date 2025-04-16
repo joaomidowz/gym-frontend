@@ -4,7 +4,9 @@ import { useEffect, useState } from "react";
 
 type Props = {
   message: string;
+  onClose: () => void;
 };
+
 
 export default function ErrorNotify({ message }: Props) {
   const [visible, setVisible] = useState(true);

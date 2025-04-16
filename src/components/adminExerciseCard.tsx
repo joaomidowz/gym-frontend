@@ -61,7 +61,7 @@ export default function AdminExerciseCard({ exercise, onUpdate }: {
 
     return (
         <div className="bg-white p-4 rounded-xl border border-primary shadow text-sm space-y-2">
-            {error && <ErrorNotify message={error}  />}
+            {error && <ErrorNotify message={error} onClose={() => setError("")} />}
             {success && <SuccessToast message="Exercício atualizado com sucesso!" />}
 
             {editMode ? (
