@@ -14,9 +14,12 @@ import {
   getWorkoutExercisesByWorkoutId,
   updateWorkoutSet,
 } from "@/services/workoutExercise";
+import { getWorkoutSessionById, updateWorkoutSession } from "@/services/workoutSession";
 import ExerciseSearch from "@/components/exerciseSearch";
 import CardEditSession from "@/components/cardEditSession";
 import { AnimatePresence, motion } from "framer-motion";
+
+// Types
 
 type Set = {
   id?: number;
@@ -28,6 +31,7 @@ type Set = {
 };
 
 type Exercise = {
+  name: string;
   id: number;
   backendId?: number;
   exerciseId: string;
@@ -38,6 +42,9 @@ export default function EditSession() {
   const [exercises, setExercises] = useState<Exercise[]>([]);
   const [exerciseOptions, setExerciseOptions] = useState<any[]>([]);
   const [showExerciseSearch, setShowExerciseSearch] = useState(false);
+  const [sessionTitle, setSessionTitle] = useState("");
+  const [notes, setNotes] = useState("");
+  const [isPublic, setIsPublic] = useState(true);
   const router = useRouter();
   const { id: sessionId } = useParams();
 
@@ -47,17 +54,22 @@ export default function EditSession() {
         const token = getToken();
         if (!token || !sessionId) return;
 
-        const [exerciseRes, workoutRes] = await Promise.all([
+        const [exerciseRes, workoutRes, sessionRes] = await Promise.all([
           getExercises(token),
           getWorkoutExercisesByWorkoutId(Number(sessionId), token),
+          getWorkoutSessionById(Number(sessionId), token),
         ]);
 
         setExerciseOptions(exerciseRes);
+        setSessionTitle(sessionRes.title || "");
+        setNotes(sessionRes.notes || "");
+        setIsPublic(sessionRes.is_public);
 
         const formatted = workoutRes.map((item: any) => ({
           id: Date.now() + item.id,
           backendId: item.id,
-          exerciseId: item.exercise.id.toString(),
+          exerciseId: item.exercise?.id?.toString() || item.exercise_id?.toString() || "",
+          name: item.exercise?.name || item.name || "Exercício",
           sets: (item.workout_sets || []).map((s: any) => ({
             id: s.id,
             reps: s.reps?.toString() || "0",
@@ -77,6 +89,26 @@ export default function EditSession() {
     fetchData();
   }, [sessionId]);
 
+  const handleUpdateField = async (
+    field: "title" | "notes" | "is_public",
+    value: string | boolean
+  ) => {
+    const token = getToken();
+    if (!token || !sessionId) return;
+
+    try {
+      await updateWorkoutSession(Number(sessionId), token, {
+        [field]: value,
+      });
+
+      if (field === "title") setSessionTitle(String(value));
+      if (field === "notes") setNotes(String(value));
+      if (field === "is_public") setIsPublic(Boolean(value));
+    } catch (err) {
+      console.error("Erro ao atualizar campo da sessão:", err);
+    }
+  };
+
   const handleAddExerciseFromModal = async (exercise: any) => {
     const token = getToken();
     if (!token || !sessionId) return;
@@ -93,6 +125,7 @@ export default function EditSession() {
           id: Date.now(),
           backendId: created.id,
           exerciseId: exercise.id.toString(),
+          name: created.name,
           sets: [],
         },
       ]);
@@ -185,9 +218,7 @@ export default function EditSession() {
       }
     }
 
-    setExercises((prev) =>
-      prev.filter((ex) => ex.id !== exerciseId)
-    );
+    setExercises((prev) => prev.filter((ex) => ex.id !== exerciseId));
   };
 
   const updateSet = async (
@@ -237,7 +268,33 @@ export default function EditSession() {
 
   return (
     <div className="flex flex-col items-center p-6 max-w-md mx-auto text-primary pb-32">
-      <h1 className="text-2xl font-bold mb-4">Adicionar Exercícios</h1>
+      <div className="w-full space-y-4 mb-6">
+        <input
+          className="w-full text-xl font-bold bg-transparent border-b-2 border-primary outline-none"
+          placeholder="Título da sessão"
+          value={sessionTitle}
+          onChange={(e) => handleUpdateField("title", e.target.value)}
+        />
+
+        <textarea
+          className="w-full border border-gray-300 rounded-xl p-3 text-sm text-gray-700"
+          placeholder="Notas sobre o treino (opcional)"
+          value={notes}
+          onChange={(e) => handleUpdateField("notes", e.target.value)}
+        />
+
+        <div className="flex items-center justify-between">
+          <span className="text-sm text-gray-600">Sessão pública?</span>
+          <button
+            className={`px-4 py-2 rounded-xl text-sm font-medium transition-all ${
+              isPublic ? "bg-green-500 text-white" : "bg-gray-300 text-gray-700"
+            }`}
+            onClick={() => handleUpdateField("is_public", !isPublic)}
+          >
+            {isPublic ? "Pública" : "Privada"}
+          </button>
+        </div>
+      </div>
 
       <button
         onClick={() => setShowExerciseSearch(true)}
@@ -257,6 +314,7 @@ export default function EditSession() {
             >
               <CardEditSession
                 exerciseName={
+                  ex.name ||
                   exerciseOptions.find((op: any) => op.id.toString() === ex.exerciseId)?.name ||
                   "Exercício"
                 }
