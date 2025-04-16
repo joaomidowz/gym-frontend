@@ -1,44 +1,27 @@
 "use client";
+
 import { useEffect, useState } from "react";
 
 type Props = {
   message: string;
-  onClose: () => void;
 };
 
-export default function ErrorNotify({ message, onClose }: Props) {
-  const [progress, setProgress] = useState(100);
+export default function ErrorNotify({ message }: Props) {
+  const [visible, setVisible] = useState(true);
 
   useEffect(() => {
-    const duration = 4000;
-    const interval = 50;
-    const steps = duration / interval;
-    let currentStep = 0;
+    const timeout = setTimeout(() => setVisible(false), 3000);
+    return () => clearTimeout(timeout);
+  }, []);
 
-    const timer = setInterval(() => {
-      currentStep++;
-      setProgress(100 - (currentStep / steps) * 100);
-
-      if (currentStep >= steps) {
-        clearInterval(timer);
-        onClose();
-      }
-    }, interval);
-
-    return () => clearInterval(timer);
-  }, [onClose]);
+  if (!visible) return null;
 
   return (
-    <div className="fixed top-0 left-0 right-0 flex justify-center z-50">
-      <div className="bg-red-500 text-white px-6 py-3 rounded-b-xl shadow-lg w-72 max-w-xl text-center">
-        <span>{message}</span>
-        <div className="h-1 bg-white mt-2 rounded overflow-hidden">
-          <div
-            className="h-full bg-red-700 transition-all"
-            style={{ width: `${progress}%` }}
-          />
-        </div>
-      </div>
+    <div
+      className="fixed bottom-5 left-1/2 -translate-x-1/2 bg-red-500 text-white px-4 py-2 rounded-xl shadow-lg text-sm z-[9999] cursor-pointer animate-fade-in"
+      onClick={() => setVisible(false)}
+    >
+      {message}
     </div>
   );
 }

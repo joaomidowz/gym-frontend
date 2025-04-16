@@ -1,4 +1,3 @@
-// components/SuccessToast.tsx
 "use client";
 
 import { useEffect, useState } from "react";
@@ -18,7 +17,8 @@ export function SuccessToast({ message }: Props) {
   if (!visible) return null;
 
   return (
-    <div className="fixed bottom-5 left-1/2 -translate-x-1/2 bg-green-500 text-white px-4 py-2 rounded-xl shadow-lg text-sm z-[9999] animate-fade-in">
+    <div className="fixed bottom-5 left-1/2 -translate-x-1/2 bg-green-500 text-white px-4 py-2 rounded-xl shadow-lg text-sm z-[9999] animate-fade-in"
+      onClick={() => setVisible(false)}>
       {message}
     </div>
   );
