@@ -12,6 +12,7 @@ import { updateUser } from "@/services/user";
 import { UserListModal } from "./userListModal";
 import { EditProfileModal } from "./editProfileModal";
 import { SuccessToast } from "./successToast";
+import { useLogout } from "@/hooks/useLogout";
 
 type Props = {
     user: {
@@ -42,6 +43,7 @@ export function UserProfile({ user, isOwnProfile, sessionCount, streak }: Props)
     const [isPublic, setIsPublic] = useState(user.is_public ?? true);
 
     const token = getToken();
+    const logout = useLogout();
 
     const loadFollowInfo = async () => {
         if (!token) return;
@@ -120,11 +122,12 @@ export function UserProfile({ user, isOwnProfile, sessionCount, streak }: Props)
 
                         <button
                             onClick={handleTogglePrivacy}
-                            className={`mt-2 px-4 py-2 rounded-xl text-sm font-medium transition-all ${isPublic ? "bg-green-500 text-white" : "bg-gray-400 text-white"
-                                }`}
+                            className={`mt-2 px-4 py-2 rounded-xl text-sm font-medium transition-all ${isPublic ? "bg-green-500 text-white" : "bg-gray-400 text-white"}`}
                         >
                             {isPublic ? "Perfil público" : "Perfil privado"}
                         </button>
+
+
                     </>
                 )}
             </div>
@@ -183,7 +186,14 @@ export function UserProfile({ user, isOwnProfile, sessionCount, streak }: Props)
                     }}
                 />
             )}
-
+            <div className="flex flex-col items-center py-5">
+            <button
+                onClick={logout}
+                className="mt-2 px-4 py-2 bg-red-500 text-white text-sm rounded-xl hover:bg-red-600 transition"
+            >
+                Sair da conta
+            </button>
+            </div>
             {showToast && <SuccessToast message="Perfil atualizado com sucesso!" />}
         </div>
     );

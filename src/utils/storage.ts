@@ -1,4 +1,4 @@
-import { jwtDecode } from "jwt-decode"; 
+import { jwtDecode } from "jwt-decode";
 const TOKEN_KEY = "@gymapp:token";
 
 export function saveToken(token: string) {
@@ -9,6 +9,8 @@ export function getToken(): string | null {
   return localStorage.getItem(TOKEN_KEY);
 }
 
+export const clearToken = () => localStorage.removeItem("token");
+
 export function getUser(): { id: number; name?: string } | null {
   const token = getToken();
   if (!token) return null;
@@ -17,7 +19,7 @@ export function getUser(): { id: number; name?: string } | null {
     const decoded: any = jwtDecode(token);
     return {
       id: decoded.id,
-      name: decoded.name, 
+      name: decoded.name,
     };
   } catch (error) {
     console.error("Erro ao decodificar token:", error);
@@ -25,6 +27,6 @@ export function getUser(): { id: number; name?: string } | null {
   }
 }
 
-export function removeToken () {
-    localStorage.removeItem(TOKEN_KEY)
+export function removeToken() {
+  localStorage.removeItem(TOKEN_KEY);
 }
