@@ -16,7 +16,6 @@ export default function ViewSessionPage() {
   const { id: sessionId } = useParams();
   const router = useRouter();
   const [exercises, setExercises] = useState<any[]>([]);
-  const [exerciseOptions, setExerciseOptions] = useState<any[]>([]);
   const [owner, setOwner] = useState<{ id: number; name: string } | null>(null);
   const [createdAt, setCreatedAt] = useState<string | null>(null);
   const [sessionTitle, setSessionTitle] = useState<string>("Sessão");
@@ -38,12 +37,12 @@ export default function ViewSessionPage() {
       setOwner(sessionRes.owner);
       setCreatedAt(sessionRes.createdAt);
       setSessionTitle(sessionRes.title || "Sessão");
-      setExerciseOptions(exerciseRes);
       setUserId(sessionRes.currentUserId);
 
       const formatted = workoutRes.map((item: any) => ({
         id: item.id,
-        exerciseId: item.exercise.id,
+        exerciseId: item.exercise?.id || null,
+        exerciseName: item.exercise?.name || item.name || "Exercício",
         sets: item.workout_sets || [],
       }));
 
@@ -115,10 +114,7 @@ export default function ViewSessionPage() {
             transition={{ duration: 0.4, ease: "easeOut" }}
           >
             <SessionViewCard
-              exerciseName={
-                exerciseOptions.find((op: any) => op.id === ex.exerciseId)?.name ||
-                "Exercício"
-              }
+              exerciseName={ex.exerciseName}
               sets={ex.sets}
             />
           </motion.div>
