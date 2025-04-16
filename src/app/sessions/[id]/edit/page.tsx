@@ -38,6 +38,9 @@ type Exercise = {
   sets: Set[];
 };
 
+let debounceTitle: NodeJS.Timeout;
+let debounceNotes: NodeJS.Timeout;
+
 export default function EditSession() {
   const [exercises, setExercises] = useState<Exercise[]>([]);
   const [exerciseOptions, setExerciseOptions] = useState<any[]>([]);
@@ -89,9 +92,33 @@ export default function EditSession() {
     fetchData();
   }, [sessionId]);
 
+  const debounceUpdateField = (field: "title" | "notes", value: string) => {
+    const token = getToken();
+    if (!token || !sessionId) return;
+
+    const setFunction = field === "title" ? setSessionTitle : setNotes;
+    const timer = field === "title" ? debounceTitle : debounceNotes;
+
+    setFunction(value);
+    clearTimeout(timer);
+
+    const newTimer = setTimeout(async () => {
+      try {
+        await updateWorkoutSession(Number(sessionId), token, {
+          [field]: value,
+        });
+      } catch (err) {
+        console.error(`Erro ao atualizar ${field}:`, err);
+      }
+    }, 400);
+
+    if (field === "title") debounceTitle = newTimer;
+    if (field === "notes") debounceNotes = newTimer;
+  };
+
   const handleUpdateField = async (
-    field: "title" | "notes" | "is_public",
-    value: string | boolean
+    field: "is_public",
+    value: boolean
   ) => {
     const token = getToken();
     if (!token || !sessionId) return;
@@ -100,12 +127,9 @@ export default function EditSession() {
       await updateWorkoutSession(Number(sessionId), token, {
         [field]: value,
       });
-
-      if (field === "title") setSessionTitle(String(value));
-      if (field === "notes") setNotes(String(value));
-      if (field === "is_public") setIsPublic(Boolean(value));
+      setIsPublic(value);
     } catch (err) {
-      console.error("Erro ao atualizar campo da sessão:", err);
+      console.error("Erro ao atualizar visibilidade:", err);
     }
   };
 
@@ -156,19 +180,19 @@ export default function EditSession() {
         prev.map((e) =>
           e.id === exerciseId
             ? {
-                ...e,
-                sets: [
-                  ...e.sets,
-                  {
-                    id: newSet.set.id,
-                    reps: newSet.set.reps.toString(),
-                    weight: newSet.set.weight.toString(),
-                    set_type: newSet.set.set_type,
-                    order: newSet.set.order,
-                    done: false,
-                  },
-                ],
-              }
+              ...e,
+              sets: [
+                ...e.sets,
+                {
+                  id: newSet.set.id,
+                  reps: newSet.set.reps.toString(),
+                  weight: newSet.set.weight.toString(),
+                  set_type: newSet.set.set_type,
+                  order: newSet.set.order,
+                  done: false,
+                },
+              ],
+            }
             : e
         )
       );
@@ -197,9 +221,9 @@ export default function EditSession() {
       prev.map((e) =>
         e.id === exerciseId
           ? {
-              ...e,
-              sets: e.sets.filter((_, i) => i !== index),
-            }
+            ...e,
+            sets: e.sets.filter((_, i) => i !== index),
+          }
           : e
       )
     );
@@ -232,10 +256,10 @@ export default function EditSession() {
         field === "order"
           ? Math.max(1, Number(value) || 1)
           : field === "weight" || field === "reps"
-          ? Number(value)
-          : field === "done"
-          ? Boolean(value === "true" || value === true)
-          : value,
+            ? Number(value)
+            : field === "done"
+              ? Boolean(value === "true" || value === true)
+              : value,
     };
 
     setExercises((prev) =>
@@ -273,22 +297,21 @@ export default function EditSession() {
           className="w-full text-xl font-bold bg-transparent border-b-2 border-primary outline-none"
           placeholder="Título da sessão"
           value={sessionTitle}
-          onChange={(e) => handleUpdateField("title", e.target.value)}
+          onChange={(e) => debounceUpdateField("title", e.target.value)}
         />
 
         <textarea
           className="w-full border border-gray-300 rounded-xl p-3 text-sm text-gray-700"
           placeholder="Notas sobre o treino (opcional)"
           value={notes}
-          onChange={(e) => handleUpdateField("notes", e.target.value)}
+          onChange={(e) => debounceUpdateField("notes", e.target.value)}
         />
 
         <div className="flex items-center justify-between">
           <span className="text-sm text-gray-600">Sessão pública?</span>
           <button
-            className={`px-4 py-2 rounded-xl text-sm font-medium transition-all ${
-              isPublic ? "bg-green-500 text-white" : "bg-gray-300 text-gray-700"
-            }`}
+            className={`px-4 py-2 rounded-xl text-sm font-medium transition-all ${isPublic ? "bg-green-500 text-white" : "bg-gray-300 text-gray-700"
+              }`}
             onClick={() => handleUpdateField("is_public", !isPublic)}
           >
             {isPublic ? "Pública" : "Privada"}
