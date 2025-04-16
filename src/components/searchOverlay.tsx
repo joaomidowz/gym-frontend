@@ -5,6 +5,8 @@ import { motion, AnimatePresence } from "framer-motion";
 import { FaSearch } from "react-icons/fa";
 import { IoClose } from "react-icons/io5";
 import { useSearch } from "@/hooks/useSearch";
+import UserSearchCard from "@/components/userSearchCard";
+import SessionSearchCard from "@/components/sessionSearchCard";
 
 export default function SearchOverlay() {
   const [isOpen, setIsOpen] = useState(false);
@@ -57,17 +59,15 @@ export default function SearchOverlay() {
 
             <div className="flex gap-2 mb-4">
               <button
-                className={`flex-1 p-2 rounded-xl ${
-                  type === "session" ? "bg-primary text-white" : "bg-white text-primary"
-                }`}
+                className={`flex-1 p-2 rounded-xl ${type === "session" ? "bg-primary text-white" : "bg-white text-primary"
+                  }`}
                 onClick={() => setType("session")}
               >
                 Sessões
               </button>
               <button
-                className={`flex-1 p-2 rounded-xl ${
-                  type === "user" ? "bg-primary text-white" : "bg-white text-primary"
-                }`}
+                className={`flex-1 p-2 rounded-xl ${type === "user" ? "bg-primary text-white" : "bg-white text-primary"
+                  }`}
                 onClick={() => setType("user")}
               >
                 Pessoas
@@ -77,16 +77,14 @@ export default function SearchOverlay() {
             {loading ? (
               <p className="text-primary">Carregando...</p>
             ) : (
-              <div className="text-primary space-y-2">
+              <div className="text-primary flex flex-col gap-2">
                 {results.length === 0 && query && <p>Nenhum resultado encontrado.</p>}
                 {results.map((item: any) => (
-                  <div key={item.id} className="p-3 border border-primary rounded-xl">
-                    {type === "user" ? (
-                      <p className="font-semibold">{item.name}</p>
-                    ) : (
-                      <p className="font-semibold">{item.title}</p>
-                    )}
-                  </div>
+                  type === "user" ? (
+                    <UserSearchCard key={item.id} id={item.id} name={item.name} />
+                  ) : (
+                    <SessionSearchCard key={item.id} id={item.id} title={item.title} />
+                  )
                 ))}
               </div>
             )}
