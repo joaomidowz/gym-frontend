@@ -3,9 +3,9 @@
 import { useEffect, useState } from "react";
 import { getAllUsers, deleteUser } from "@/services/user";
 import { getToken } from "@/utils/storage";
-import { FaTrashAlt } from "react-icons/fa";
 import { EditUserAdminModal } from "@/components/editUserAdminModal";
 import ConfirmationModal from "@/components/confirmationModal";
+import AdminUserCard from "@/components/adminUserCard";
 
 export default function AdminUsersPage() {
     const [users, setUsers] = useState<any[]>([]);
@@ -42,7 +42,7 @@ export default function AdminUsersPage() {
     const closeModal = () => {
         setUserToDelete(null);
         setIsModalOpen(false);
-    }
+    };
 
     const handleDeleteConfirmed = async () => {
         if (userToDelete === null) return;
@@ -61,69 +61,36 @@ export default function AdminUsersPage() {
     const handleEditSuccess = (updatedData: any) => {
         if (!editingUser) return;
         setUsers((prev) =>
-            prev.map((u) =>
-                u.id === editingUser.id
-                    ? { ...u, ...updatedData }
-                    : u
-            )
+            prev.map((u) => (u.id === editingUser.id ? { ...u, ...updatedData } : u))
         );
         setEditingUser(null);
     };
 
     return (
-        <div className="p-6 pb-24 max-w-4xl mx-auto text-primary">
+        <div className="p-4 pb-28 max-w-4xl mx-auto text-primary">
             <h1 className="text-2xl font-bold mb-6">Gerenciar Usuários</h1>
 
             {loading && <p>Carregando usuários...</p>}
-            {error && <p className="text-red-500">Erro: {error}</p>}
+            {error && <p className="text-red-500">{error}</p>}
 
             {!loading && !error && (
-                <div className="overflow-x-auto">
-                    <table className="w-full text-sm border border-primary rounded-xl overflow-hidden">
-                        <thead className="bg-primary text-white">
-                            <tr>
-                                <th className="p-3 text-left">ID</th>
-                                <th className="p-3 text-left">Nome</th>
-                                <th className="p-3 text-left">Email</th>
-                                <th className="p-3 text-left">Altura</th>
-                                <th className="p-3 text-left">Peso</th>
-                                <th className="p-3 text-left">Streak</th>
-                                <th className="p-3 text-left">Ações</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            {users.map((user) => (
-                                <tr key={user.id} className="border-t">
-                                    <td className="p-3">{user.id}</td>
-                                    <td className="p-3">{user.name}</td>
-                                    <td className="p-3">{user.email}</td>
-                                    <td className="p-3">{user.height_cm || "-"}</td>
-                                    <td className="p-3">{user.weight_kg || "-"}</td>
-                                    <td className="p-3">{user.streak_count || 0}</td>
-                                    <td className="p-3 space-x-2">
-                                        <button
-                                            onClick={() => openModal(user.id)}
-                                            className="p-2 bg-red-500 text-white rounded hover:bg-red-600"
-                                        >
-                                            <FaTrashAlt />
-                                        </button>
-                                        <button
-                                            onClick={() => setEditingUser(user)}
-                                            className="p-2 bg-blue-500 text-white rounded hover:bg-blue-600"
-                                        >
-                                            ✏️
-                                        </button>
-                                    </td>
-                                </tr>
-                            ))}
-                        </tbody>
-                    </table>
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                    {users.map((user) => (
+                        <AdminUserCard
+                            key={user.id}
+                            user={user}
+                            onEdit={() => setEditingUser(user)}
+                            onDelete={() => openModal(user.id)}
+                            onToggleAdmin={() => alert("Em breve: alternar admin")}
+                        />
+                    ))}
                 </div>
             )}
 
             {editingUser && (
                 <EditUserAdminModal
                     userId={editingUser.id}
+                    currentName={editingUser.name}
                     currentEmail={editingUser.email}
                     currentHeight={editingUser.height_cm}
                     currentWeight={editingUser.weight_kg}

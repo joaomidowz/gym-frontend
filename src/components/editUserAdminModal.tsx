@@ -7,21 +7,29 @@ import { SuccessToast } from "./successToast";
 
 type Props = {
   userId: number;
+  currentName?: string;
   currentHeight?: number;
   currentWeight?: number;
   currentEmail?: string;
   onClose: () => void;
-  onSuccess: (newData: { height_cm?: number; weight_kg?: number; email?: string }) => void;
+  onSuccess: (newData: {
+    name?: string;
+    height_cm?: number;
+    weight_kg?: number;
+    email?: string;
+  }) => void;
 };
 
 export function EditUserAdminModal({
   userId,
+  currentName,
   currentHeight,
   currentWeight,
   currentEmail,
   onClose,
   onSuccess,
 }: Props) {
+  const [name, setName] = useState(currentName || "");
   const [height, setHeight] = useState(currentHeight || "");
   const [weight, setWeight] = useState(currentWeight || "");
   const [email, setEmail] = useState(currentEmail || "");
@@ -38,11 +46,12 @@ export function EditUserAdminModal({
       if (!token) throw new Error("Token ausente.");
 
       const body: any = {};
+      if (name) body.name = name;
       if (height) body.height_cm = Number(height);
       if (weight) body.weight_kg = Number(weight);
       if (email) body.email = email;
 
-      if (!body.height_cm && !body.weight_kg && !body.email) {
+      if (!body.name && !body.height_cm && !body.weight_kg && !body.email) {
         setError("Preencha pelo menos um campo.");
         setLoading(false);
         return;
@@ -51,6 +60,7 @@ export function EditUserAdminModal({
       const res = await updateUser(userId, token, body);
 
       onSuccess({
+        name: res.user.name,
         height_cm: res.user.height_cm,
         weight_kg: res.user.weight_kg,
         email: res.user.email,
@@ -68,6 +78,16 @@ export function EditUserAdminModal({
     <div className="fixed inset-0 bg-black/50 backdrop-blur-sm flex justify-center items-center z-50">
       <div className="bg-white rounded-2xl p-6 w-full max-w-sm">
         <h3 className="text-lg font-bold text-primary mb-4">Editar Usuário</h3>
+
+        <div className="mb-4">
+          <label className="text-sm text-gray-700">Nome</label>
+          <input
+            type="text"
+            value={name}
+            onChange={(e) => setName(e.target.value)}
+            className="w-full mt-1 px-3 py-2 border rounded-xl text-sm"
+          />
+        </div>
 
         <div className="mb-4">
           <label className="text-sm text-gray-700">Altura (cm)</label>

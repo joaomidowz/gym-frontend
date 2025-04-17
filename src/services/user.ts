@@ -32,6 +32,7 @@ export async function updateUser(
   id: number,
   token: string,
   updates: {
+    name?: string;
     email?: string;
     height_cm?: number;
     weight_kg?: number;
