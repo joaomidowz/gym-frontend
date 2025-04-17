@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { getAllUsers, deleteUser } from "@/services/user";
+import { getAllUsers, deleteUser, toggleAdminStatus } from "@/services/user";
 import { getToken } from "@/utils/storage";
 import { EditUserAdminModal } from "@/components/editUserAdminModal";
 import ConfirmationModal from "@/components/confirmationModal";
@@ -81,7 +81,23 @@ export default function AdminUsersPage() {
                             user={user}
                             onEdit={() => setEditingUser(user)}
                             onDelete={() => openModal(user.id)}
-                            onToggleAdmin={() => alert("Em breve: alternar admin")}
+                            onToggleAdmin={async () => {
+                                const token = getToken();
+                                if (!token) return;
+
+                                try {
+                                    const res = await toggleAdminStatus(user.id, token, !user.is_admin);
+                                    setUsers((prev) =>
+                                        prev.map((u) =>
+                                            u.id === user.id ? { ...u, is_admin: res.user.is_admin } : u
+                                        )
+                                    );
+                                } catch (err: any) {
+                                    alert(err.message);
+                                }
+                            }}
+
+
                         />
                     ))}
                 </div>

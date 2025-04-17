@@ -127,3 +127,24 @@ export async function getUserStreakById(userId: number) {
 
   return data;
 }
+
+export async function toggleAdminStatus(
+  id: number,
+  token: string,
+  isAdmin: boolean
+) {
+  const res = await fetch(`${API_URL}/user/${id}/admin`, {
+    method: "PUT",
+    headers: {
+      "Content-Type": "application/json",
+      Authorization: `Bearer ${token}`,
+    },
+    body: JSON.stringify({ is_admin: isAdmin})
+  });
+
+  const data = await res.json();
+  
+  if (!res.ok) throw new Error(data.error || "Erro ao atualizar permissão do usuário");
+
+  return data
+}
