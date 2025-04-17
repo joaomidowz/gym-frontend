@@ -57,10 +57,16 @@ export async function updateUser(
   return data;
 }
 
-export async function deleteUser(id: number, token: string, deletePassword: string) {
+export async function deleteUser(
+  id: number,
+  token: string,
+  deletePassword?: string
+) {
   const res = await fetch(`${API_URL}/user/${id}`, {
     method: "DELETE",
-    headers: { Authorization: `Bearer ${token}` },
+    headers: {
+      Authorization: `Bearer ${token}`,
+    },
   });
 
   const data = await res.json();

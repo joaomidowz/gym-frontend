@@ -96,7 +96,7 @@ export default function SessionPage() {
                             comments_count={session.comments_count}
                             total_sets={session.total_sets}
                             total_weight={session.total_weight}
-                            createdAt={session.createdAt} 
+                            createdAt={session.createdAt}
                             onDelete={() => openModal(session.id)}
                         />
 
@@ -107,6 +107,7 @@ export default function SessionPage() {
                 isOpen={isModalOpen}
                 onClose={closeModal}
                 onConfirm={handleDeleteSession}
+                message="Você está prestes a excluir essa sessão. Isso não poderá ser desfeito."
             />
         </>
     );

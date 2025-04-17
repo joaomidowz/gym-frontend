@@ -1,7 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import { FaDumbbell } from "react-icons/fa";
+import { FaDumbbell, FaUser } from "react-icons/fa";
 import { useAuth } from "@/hooks/useAuth";
 
 export default function AdminPage() {
@@ -22,6 +22,14 @@ export default function AdminPage() {
         >
           <FaDumbbell className="text-xl" />
           <span className="text-lg">Gerenciar Exercícios</span>
+        </Link>
+
+        <Link
+          href="/admin/users"
+          className="flex items-center gap-3 bg-white border border-primary rounded-xl p-4 shadow hover:bg-primary hover:text-white transition"
+        >
+          <FaUser className="text-xl" />
+          <span className="text-lg">Gerenciar Usuários</span>
         </Link>
       </div>
     </div>
