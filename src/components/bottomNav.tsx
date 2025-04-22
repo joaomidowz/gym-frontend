@@ -2,12 +2,13 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { FaHome, FaListUl, FaUser, FaTools } from "react-icons/fa";
+import { FaHome, FaListUl, FaUser, FaTools, FaDumbbell } from "react-icons/fa";
 import { useAuth } from "@/hooks/useAuth";
 
 const navItems = [
     { href: "/feed", icon: FaHome, label: "Home" },
     { href: "/sessions", icon: FaListUl, label: "Sessões" },
+    { href: "/exercises", icon: FaDumbbell, label: "Exercise" },
     { href: "/profile", icon: FaUser, label: "Perfil" },
 ];
 

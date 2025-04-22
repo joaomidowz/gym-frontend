@@ -51,6 +51,21 @@ export async function getExercises(token: string) {
   return data;
 }
 
+export async function getExercisesWithPR(token: string) {
+  const res = await fetch(`${API_URL}/exercises/with-pr`, {
+    method: "GET",
+    headers: {
+      Authorization: `Bearer ${token}`,
+    },
+  });
+  const data = await res.json();
+
+  if (!res.ok)
+    throw new Error(data.error || data.message || "Erro ao buscar exercício");
+
+  return data;
+}
+
 export async function getExercisesAdmin(token: string) {
   const res = await fetch(`${API_URL}/exercises/admin/exercises`, {
     headers: {
