@@ -7,6 +7,7 @@ import {
   FaUser,
   FaHeart,
   FaRegCalendarAlt,
+  FaStopwatch 
 } from "react-icons/fa";
 import { format } from "date-fns";
 
@@ -18,6 +19,7 @@ type Props = {
     name: string;
     is_public: boolean;
   };
+  duration_seconds?: number;
   like_count: number;
   comments_count: number;
   total_sets: number;
@@ -32,6 +34,7 @@ export default function SessionCardFeed({
   sessionId,
   title,
   user,
+  duration_seconds,
   like_count,
   comments_count,
   total_sets,
@@ -42,6 +45,13 @@ export default function SessionCardFeed({
   isLiked,
 }: Props) {
   const router = useRouter();
+
+  const formatDuration = (seconds: number) => {
+    const h = Math.floor(seconds / 3600);
+    const m = Math.floor((seconds % 3600) / 60);
+    const s = seconds % 60;
+    return `${h.toString().padStart(2, "0")} : ${m.toString().padStart(2, "0")} : ${s.toString().padStart(2, "0")}`;
+  };
 
   return (
     <div
@@ -73,6 +83,9 @@ export default function SessionCardFeed({
           <FaRegCalendarAlt />
           <span>{format(new Date(createdAt), "dd/MM/yyyy")}</span>
         </div>
+      )}
+      {typeof duration_seconds === "number" && (
+        <p className="flex items-center gap-1 text-xs text-gray-500 mb-2"><FaStopwatch /> {formatDuration(duration_seconds)}</p>
       )}
 
       <div className="text-xs text-gray-500 flex justify-between items-center">

@@ -17,6 +17,7 @@ type Session = {
         name: string;
         is_public: boolean;
     };
+    duration_seconds?: number;
     like_count: number;
     comments_count: number;
     total_sets: number;
@@ -112,6 +113,7 @@ export default function FeedPage() {
                             sessionId={session.id}
                             title={session.title}
                             user={session.user}
+                            duration_seconds={session.duration_seconds}
                             like_count={session.like_count}
                             comments_count={session.comments_count}
                             total_sets={session.total_sets}
