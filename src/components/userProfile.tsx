@@ -13,6 +13,7 @@ import { UserListModal } from "./userListModal";
 import { EditProfileModal } from "./editProfileModal";
 import { SuccessToast } from "./successToast";
 import { useLogout } from "@/hooks/useLogout";
+import { TrainingDaysCalendar } from "@/components/trainingDaysCalendar";
 
 type Props = {
     user: {
@@ -187,12 +188,16 @@ export function UserProfile({ user, isOwnProfile, sessionCount, streak }: Props)
                 />
             )}
             <div className="flex flex-col items-center py-5">
-            <button
-                onClick={logout}
-                className="mt-2 px-4 py-2 bg-red-500 text-white text-sm rounded-xl hover:bg-red-600 transition"
-            >
-                Sair da conta
-            </button>
+                <button
+                    onClick={logout}
+                    className="mt-2 px-4 py-2 bg-red-500 text-white text-sm rounded-xl hover:bg-red-600 transition"
+                >
+                    Sair da conta
+                </button>
+                {isOwnProfile && (
+                    <TrainingDaysCalendar userId={localUser.id} />
+                )}
+
             </div>
             {showToast && <SuccessToast message="Perfil atualizado com sucesso!" />}
         </div>

@@ -139,12 +139,29 @@ export async function toggleAdminStatus(
       "Content-Type": "application/json",
       Authorization: `Bearer ${token}`,
     },
-    body: JSON.stringify({ is_admin: isAdmin})
+    body: JSON.stringify({ is_admin: isAdmin }),
   });
 
   const data = await res.json();
-  
-  if (!res.ok) throw new Error(data.error || "Erro ao atualizar permissão do usuário");
 
-  return data
+  if (!res.ok)
+    throw new Error(data.error || "Erro ao atualizar permissão do usuário");
+
+  return data;
+}
+
+export async function getTrainingDays(id: number, token: string) {
+  const res = await fetch(`${API_URL}/user/${id}/training-days`, {
+    method: "GET",
+    headers: { Authorization: `Bearer ${token}` },
+  });
+
+  const data = await res.json();
+
+  if (!res.ok)
+    throw new Error(
+      data.error || data.message || "Erro ao pegar o dias de treino do usuário"
+    );
+
+  return data as string[];
 }
