@@ -52,6 +52,7 @@ export default function CreateSessionWithTimer() {
     const [notes, setNotes] = useState("");
     const [isPublic, setIsPublic] = useState(true);
     const [seconds, setSeconds] = useState(0);
+    const [isAddingSetId, setIsAddingSetId] = useState<number | null>(null);
     const router = useRouter();
     const { id: sessionId } = useParams();
 
@@ -166,11 +167,15 @@ export default function CreateSessionWithTimer() {
     };
 
     const addSet = async (exerciseId: number) => {
+        if (isAddingSetId === exerciseId) return; // Evita múltiplos cliques
+
         const token = getToken();
         const ex = exercises.find((e) => e.id === exerciseId);
         if (!token || !ex || !sessionId || !ex.exerciseId) return;
 
         try {
+            setIsAddingSetId(exerciseId); // Ativa flag
+
             const workoutExerciseId = ex.backendId;
             if (!workoutExerciseId) return;
 
@@ -205,8 +210,11 @@ export default function CreateSessionWithTimer() {
             );
         } catch (err) {
             console.error("Erro ao adicionar set:", err);
+        } finally {
+            setIsAddingSetId(null); // Libera flag
         }
     };
+
 
     const deleteSet = async (exerciseId: number, index: number) => {
         const ex = exercises.find((e) => e.id === exerciseId);
@@ -376,7 +384,9 @@ export default function CreateSessionWithTimer() {
                                 onRemoveSet={(index) => deleteSet(ex.id, index)}
                                 onAddSet={() => addSet(ex.id)}
                                 onRemoveExercise={() => removeExercise(ex.id)}
+                                isAddingSet={isAddingSetId === ex.id}
                             />
+
                         </motion.div>
                     ))}
                 </AnimatePresence>

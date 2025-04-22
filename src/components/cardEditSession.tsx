@@ -1,4 +1,3 @@
-// components/CardEditSession.tsx
 "use client";
 
 import { motion, AnimatePresence } from "framer-motion";
@@ -22,6 +21,7 @@ type Props = {
   onRemoveSet: (index: number) => void;
   onAddSet: () => void;
   onRemoveExercise: () => void;
+  isAddingSet?: boolean;
 };
 
 export default function CardEditSession({
@@ -31,6 +31,7 @@ export default function CardEditSession({
   onRemoveSet,
   onAddSet,
   onRemoveExercise,
+  isAddingSet,
 }: Props) {
   const allDone = sets.length > 0 && sets.every((set) => set.done);
 
@@ -40,9 +41,8 @@ export default function CardEditSession({
       initial={{ opacity: 0, y: 10 }}
       animate={{ opacity: 1, y: 0 }}
       exit={{ opacity: 0, x: -100 }}
-      className={`border-2 rounded-xl p-4 transition-all duration-300 ${
-        allDone ? "border-green-500 bg-green-50" : "border-primary"
-      }`}
+      className={`border-2 rounded-xl p-4 transition-all duration-300 ${allDone ? "border-green-500 bg-green-50" : "border-primary"
+        }`}
     >
       <div className="flex justify-between items-center mb-2">
         <p className="font-semibold text-primary">{exerciseName}</p>
@@ -125,10 +125,12 @@ export default function CardEditSession({
 
       <motion.button
         onClick={onAddSet}
-        className="text-primary underline text-sm mt-3"
+        disabled={isAddingSet}
+        className={`text-primary underline text-sm mt-3 transition-all ${isAddingSet ? "opacity-50 cursor-not-allowed" : ""
+          }`}
         whileTap={{ scale: 0.95 }}
       >
-        + Adicionar set
+        {isAddingSet ? "Adicionando..." : "+ Adicionar set"}
       </motion.button>
     </motion.div>
   );

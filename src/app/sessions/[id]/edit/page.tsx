@@ -49,6 +49,7 @@ export default function EditSession() {
   const [sessionTitle, setSessionTitle] = useState("");
   const [notes, setNotes] = useState("");
   const [isPublic, setIsPublic] = useState(true);
+  const [isAddingSetId, setIsAddingSetId] = useState<number | null>(null);
   const [hours, setHours] = useState(0);
   const [minutes, setMinutes] = useState(0);
   const [seconds, setSeconds] = useState(0);
@@ -188,11 +189,15 @@ export default function EditSession() {
   };
 
   const addSet = async (exerciseId: number) => {
+    if (isAddingSetId === exerciseId) return;
+
     const token = getToken();
     const ex = exercises.find((e) => e.id === exerciseId);
     if (!token || !ex || !sessionId || !ex.exerciseId) return;
 
     try {
+      setIsAddingSetId(exerciseId); // Ativa flag
+
       const workoutExerciseId = ex.backendId;
       if (!workoutExerciseId) return;
 
@@ -227,8 +232,11 @@ export default function EditSession() {
       );
     } catch (err) {
       console.error("Erro ao adicionar set:", err);
+    } finally {
+      setIsAddingSetId(null); // Libera flag
     }
   };
+
 
   const deleteSet = async (exerciseId: number, index: number) => {
     const ex = exercises.find((e) => e.id === exerciseId);
@@ -385,6 +393,7 @@ export default function EditSession() {
                 onRemoveSet={(index) => deleteSet(ex.id, index)}
                 onAddSet={() => addSet(ex.id)}
                 onRemoveExercise={() => removeExercise(ex.id)}
+                isAddingSet={isAddingSetId === ex.id}
               />
             </motion.div>
           ))}
