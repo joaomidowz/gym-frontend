@@ -10,15 +10,19 @@ export default function CreateSessionPage() {
   const [date, setDate] = useState(() => new Date().toISOString().split("T")[0]);
   const [notes, setNotes] = useState("");
   const [isPublic, setIsPublic] = useState(true);
+  const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
   const router = useRouter();
 
   const handleCreateSession = async () => {
+    if (loading) return;
     setError("");
     if (!title || !date) {
       setError("Título e data são obrigatórios");
       return;
     }
+
+    setLoading(true);
 
     try {
       const token = getToken();
@@ -37,6 +41,8 @@ export default function CreateSessionPage() {
       router.push(`/sessions/create-session/${newSession.sessions.id}`);
     } catch (err: any) {
       setError(err.message || "Erro ao criar sessão");
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -93,9 +99,13 @@ export default function CreateSessionPage() {
 
         <button
           onClick={handleCreateSession}
-          className="w-full bg-primary text-white text-base font-medium rounded-2xl p-3 hover:bg-primary/80 transition"
+          disabled={loading}
+          className={`w-full text-base font-medium rounded-2xl p-3 transition ${loading
+              ? "bg-gray-400 text-white cursor-not-allowed"
+              : "bg-primary text-white hover:bg-primary/80"
+            }`}
         >
-          Criar sessão
+          {loading ? "Criando..." : "Criar sessão"}
         </button>
       </div>
     </div>
