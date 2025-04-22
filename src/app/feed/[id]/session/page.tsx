@@ -21,6 +21,7 @@ export default function ViewSessionPage() {
   const [sessionTitle, setSessionTitle] = useState<string>("Sessão");
   const [userId, setUserId] = useState<number | null>(null);
   const [notes, setNotes] = useState<string | null>(null);
+  const [durationSeconds, setDurationSeconds] = useState<number | null>(null);
 
   useEffect(() => {
     const fetchData = async () => {
@@ -38,6 +39,7 @@ export default function ViewSessionPage() {
       setCreatedAt(sessionRes.createdAt);
       setSessionTitle(sessionRes.title || "Sessão");
       setUserId(sessionRes.currentUserId);
+      setDurationSeconds(sessionRes.duration_seconds ?? null);
 
       const formatted = workoutRes.map((item: any) => ({
         id: item.id,
@@ -51,6 +53,15 @@ export default function ViewSessionPage() {
 
     fetchData();
   }, [sessionId]);
+
+  const formatDuration = (seconds: number) => {
+    const h = Math.floor(seconds / 3600);
+    const m = Math.floor((seconds % 3600) / 60);
+    const s = seconds % 60;
+    return `${h.toString().padStart(2, "0")} : ${m.toString().padStart(2, "0")} : ${s.toString().padStart(2, "0")}`;
+  };
+
+
 
   return (
     <div className="flex flex-col items-center p-6 max-w-md mx-auto text-primary pb-32">
@@ -83,6 +94,12 @@ export default function ViewSessionPage() {
               Criado em: {format(new Date(createdAt), "dd/MM/yyyy")}
             </p>
           )}
+          {durationSeconds !== null && (
+            <p className="text-sm text-gray-400 mt-1">
+              Tempo total: <span className="font-semibold">{formatDuration(durationSeconds)}</span>
+            </p>
+          )}
+
         </div>
         <button
           onClick={() => router.back()}
