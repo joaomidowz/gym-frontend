@@ -34,7 +34,7 @@ export default function CreateSessionPage() {
         notes,
       });
 
-      router.push(`/sessions/${newSession.sessions.id}/edit`);
+      router.push(`/sessions/create-session/${newSession.sessions.id}`);
     } catch (err: any) {
       setError(err.message || "Erro ao criar sessão");
     }

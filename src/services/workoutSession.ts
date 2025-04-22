@@ -7,6 +7,7 @@ export async function createWorkout(
     notes?: string;
     date?: string;
     is_public?: boolean;
+    duration_seconds?: number;
   }
 ) {
   const res = await fetch(`${API_URL}/workout-session`, {
@@ -106,6 +107,7 @@ export async function updateWorkoutSession(
     title?: string;
     date?: string;
     is_public?: boolean;
+    duration_seconds?: number;
   }
 ) {
   const res = await fetch(`${API_URL}/workout-session/${sessionId}`, {

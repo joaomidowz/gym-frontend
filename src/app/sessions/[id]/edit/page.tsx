@@ -16,6 +16,7 @@ import {
 } from "@/services/workoutExercise";
 import { getWorkoutSessionById, updateWorkoutSession } from "@/services/workoutSession";
 import ExerciseSearch from "@/components/exerciseSearch";
+import EditableTime from "@/components/editableTime";
 import CardEditSession from "@/components/cardEditSession";
 import { AnimatePresence, motion } from "framer-motion";
 
@@ -48,6 +49,9 @@ export default function EditSession() {
   const [sessionTitle, setSessionTitle] = useState("");
   const [notes, setNotes] = useState("");
   const [isPublic, setIsPublic] = useState(true);
+  const [hours, setHours] = useState(0);
+  const [minutes, setMinutes] = useState(0);
+  const [seconds, setSeconds] = useState(0);
   const router = useRouter();
   const { id: sessionId } = useParams();
 
@@ -62,6 +66,11 @@ export default function EditSession() {
           getWorkoutExercisesByWorkoutId(Number(sessionId), token),
           getWorkoutSessionById(Number(sessionId), token),
         ]);
+
+        const duration = sessionRes.duration_seconds || 0;
+        setHours(Math.floor(duration / 3600));
+        setMinutes(Math.floor((duration % 3600) / 60));
+        setSeconds(duration % 60);
 
         setExerciseOptions(exerciseRes);
         setSessionTitle(sessionRes.title || "");
@@ -132,6 +141,26 @@ export default function EditSession() {
       console.error("Erro ao atualizar visibilidade:", err);
     }
   };
+
+  const handleDurationChange = (unit: "hours" | "minutes" | "seconds", value: number) => {
+    const val = Math.max(0, value);
+    if (unit === "hours") setHours(val);
+    else if (unit === "minutes") setMinutes(val);
+    else setSeconds(val);
+
+    const totalSeconds =
+      (unit === "hours" ? val : hours) * 3600 +
+      (unit === "minutes" ? val : minutes) * 60 +
+      (unit === "seconds" ? val : seconds);
+
+    const token = getToken();
+    if (!token || !sessionId) return;
+
+    updateWorkoutSession(Number(sessionId), token, {
+      duration_seconds: totalSeconds
+    }).catch(err => console.error("Erro ao atualizar duração:", err));
+  };
+
 
   const handleAddExerciseFromModal = async (exercise: any) => {
     const token = getToken();
@@ -317,6 +346,14 @@ export default function EditSession() {
             {isPublic ? "Pública" : "Privada"}
           </button>
         </div>
+        <div className="flex items-center gap-1 text-xl font-mono text-primary">
+          <span className="text-gray-600 font-medium">Tempo:</span>
+          <EditableTime value={hours} onChange={(v) => handleDurationChange("hours", v)} />
+          <span>:</span>
+          <EditableTime value={minutes} onChange={(v) => handleDurationChange("minutes", v)} />
+          <span>:</span>
+          <EditableTime value={seconds} onChange={(v) => handleDurationChange("seconds", v)} />
+        </div>
       </div>
 
       <button
@@ -369,3 +406,5 @@ export default function EditSession() {
     </div>
   );
 }
+
+
