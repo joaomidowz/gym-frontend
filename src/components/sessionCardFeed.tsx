@@ -7,7 +7,8 @@ import {
   FaUser,
   FaHeart,
   FaRegCalendarAlt,
-  FaStopwatch 
+  FaStopwatch,
+  FaMedal
 } from "react-icons/fa";
 import { format } from "date-fns";
 
@@ -28,6 +29,9 @@ type Props = {
   onLike?: () => void;
   onClick?: () => void;
   isLiked?: boolean;
+  prs?: {
+    pr_type: "weight" | "reps";
+  }[];
 };
 
 export default function SessionCardFeed({
@@ -43,6 +47,7 @@ export default function SessionCardFeed({
   onLike,
   onClick,
   isLiked,
+  prs
 }: Props) {
   const router = useRouter();
 
@@ -64,7 +69,20 @@ export default function SessionCardFeed({
       </div>
 
       <div className="flex justify-between items-center mb-2">
-        <h2 className="text-lg font-bold truncate w-3/4">{title}</h2>
+        <h2 className="text-lg font-bold truncate w-3/4">
+        {title}
+        {[...new Set(prs?.map(pr => pr.pr_type))].map((type) => (
+                    <span
+                      key={type}
+                      className={`ml-2 px-2 py-1 rounded-full bg-yellow-100 text-xs font-semibold inline-flex items-center gap-1 ${type === "weight" ? "text-yellow-700 animate-bounce" : "text-gray-600 animate-pulse bg-gray-100"
+                        }`}
+                    >
+                      <FaMedal />
+                      {type === "weight" ? "Peso" : "Reps"}
+                    </span>
+        
+                  ))}
+        </h2>
       </div>
 
       <div className="flex gap-4 text-sm mb-2">

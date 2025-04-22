@@ -24,6 +24,7 @@ type Session = {
     total_weight: number;
     createdAt: Date;
     is_liked: boolean;
+    prs?: []
 };
 
 export default function FeedPage() {
@@ -112,6 +113,7 @@ export default function FeedPage() {
                         <SessionCardFeed
                             sessionId={session.id}
                             title={session.title}
+                            prs={session.prs}
                             user={session.user}
                             duration_seconds={session.duration_seconds}
                             like_count={session.like_count}

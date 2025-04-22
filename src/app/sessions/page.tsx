@@ -3,13 +3,37 @@
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import { getMyWorkoutSession, deleteWorkoutSession } from "@/services/workoutSession";
+import { getPRsBySession } from "@/services/pr";
 import SessionCardSessions from "@/components/sessionCardSessions";
 import { getToken } from "@/utils/storage";
 import { motion } from "framer-motion";
 import ConfirmationModal from "@/components/confirmationModal";
 
 export default function SessionPage() {
-    const [sessions, setSessions] = useState([]);
+    type PRType = {
+        pr_type: "weight" | "reps";
+        value: number;
+        exercise_id: number;
+    };
+
+    type SessionType = {
+        id: number;
+        title: string;
+        user?: {
+            id: number;
+            name: string;
+            is_public: boolean;
+        };
+        like_count: number;
+        comments_count: number;
+        total_sets: number;
+        total_weight: number;
+        createdAt?: string;
+        prs?: PRType[];
+    };
+
+    const [sessions, setSessions] = useState<SessionType[]>([]);
+
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState("");
     const [isModalOpen, setIsModalOpen] = useState(false);
@@ -26,7 +50,20 @@ export default function SessionPage() {
                 }
 
                 const res = await getMyWorkoutSession(token);
-                setSessions(res);
+
+                const sessionsWithPRs = await Promise.all(
+                    res.map(async (session: any) => {
+                        try {
+                            const prs = await getPRsBySession(session.id, token);
+                            return { ...session, prs };
+                        } catch (err) {
+                            console.warn(`Erro ao buscar PRs da sessão ${session.id}:`, err);
+                            return { ...session, prs: [] };
+                        }
+                    })
+                );
+
+                setSessions(sessionsWithPRs);
             } catch (err: any) {
                 setError("Erro ao carregar suas sessões.");
                 console.error(err);
@@ -34,6 +71,7 @@ export default function SessionPage() {
                 setLoading(false);
             }
         };
+
 
         fetchUserSessions();
     }, []);
@@ -90,6 +128,7 @@ export default function SessionPage() {
                     >
                         <SessionCardSessions
                             id={session.id}
+                            prs={session.prs}
                             title={session.title}
                             user={session.user}
                             like_count={session.like_count}
@@ -98,6 +137,7 @@ export default function SessionPage() {
                             total_weight={session.total_weight}
                             createdAt={session.createdAt}
                             onDelete={() => openModal(session.id)}
+                            duration_seconds={session.duration_seconds}
                         />
 
                     </motion.div>
