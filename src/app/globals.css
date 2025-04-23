@@ -8,6 +8,7 @@
   --terciary: #39349C;
   --white: #ffffff;
   --white-txt: #ffffff;
+  --color-gray-500:#6a7282;
   --gray-border: #524BE0;
   --font-body: 'Atkinson Hyperlegible', sans-serif;
 }
@@ -20,6 +21,7 @@
   --secundary: #1f2937;
   --primary-light: #7D7DF9;
   --gray-border: #374151;
+  --color-gray-500:#ffffff;
   --background-dark: #111827;
   --white: #1f2937;
 }

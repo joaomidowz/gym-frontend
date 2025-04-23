@@ -85,7 +85,7 @@ export default function SessionCardFeed({
         </h2>
       </div>
 
-      <div className="flex gap-4 text-sm mb-2">
+      <div className="flex gap-4 text-sm mb-2 text-gray-500">
         <div className="flex items-center gap-1">
           <FaListUl />
           <span>{total_sets} sets</span>
