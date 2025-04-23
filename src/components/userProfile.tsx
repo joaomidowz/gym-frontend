@@ -109,10 +109,10 @@ export function UserProfile({ user, isOwnProfile, sessionCount, streak }: Props)
 
     return (
         <div className="p-4 pb-20 max-w-xl mx-auto">
-            <div className="bg-white shadow rounded-2xl p-6 flex flex-col items-center">
+            <div className="bg-white shadow rounded-2xl p-6 flex flex-col items-center relative">
                 <button
                     onClick={toggleTheme}
-                    className="text-primary dark:text-primary-light text-xl p-2 hover:opacity-80 transition abs"
+                    className="absolute top-2 left-2 text-primary dark:text-primary-light text-xl p-2 hover:opacity-80 transition"
                     title={isDark ? "Modo claro" : "Modo escuro"}
                 >
                     {isDark ? <FaSun /> : <FaMoon />}
@@ -161,11 +161,11 @@ export function UserProfile({ user, isOwnProfile, sessionCount, streak }: Props)
                 </div>
                 <div className="bg-white rounded-2xl p-4 shadow">
                     <p className="text-gray-400">Peso</p>
-                    <p className="text-xl font-semibold">{localUser.weight_kg ?? "-"}</p>
+                    <p className="text-xl text-primary font-semibold">{localUser.weight_kg ?? "-"}</p>
                 </div>
                 <div className="bg-white rounded-2xl p-4 shadow">
                     <p className="text-gray-400">Altura</p>
-                    <p className="text-xl font-semibold">{localUser.height_cm ?? "-"}</p>
+                    <p className="text-xl text-primary font-semibold">{localUser.height_cm ?? "-"}</p>
                 </div>
                 <div className="bg-white rounded-2xl p-4 shadow">
                     <p className="text-gray-400">Streak atual</p>
