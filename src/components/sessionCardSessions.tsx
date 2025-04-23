@@ -111,7 +111,7 @@ export default function SessionCardSessions({
         </h2>
       </div>
 
-      <div className="flex gap-4 text-sm mb-2">
+      <div className="flex gap-4 text-sm mb-2 text-gray-500 ">
         <div className="flex items-center gap-1">
           <FaListUl />
           <span>{total_sets} sets</span>
@@ -123,7 +123,7 @@ export default function SessionCardSessions({
       </div>
 
       {createdAt && (
-        <div className="flex items-center gap-1 text-xs mb-2">
+        <div className="flex items-center gap-1 text-xs mb-2 text-gray-500 ">
           <FaRegCalendarAlt />
           <span>{format(new Date(createdAt), "dd/MM/yyyy")}</span>
         </div>
