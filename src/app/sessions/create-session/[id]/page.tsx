@@ -53,10 +53,34 @@ export default function CreateSessionWithTimer() {
     const [isPublic, setIsPublic] = useState(true);
     const [seconds, setSeconds] = useState(0);
     const [isAddingSetId, setIsAddingSetId] = useState<number | null>(null);
+    const [startTime, setStartTime] = useState<number | null>(null);
     const router = useRouter();
     const { id: sessionId } = useParams();
 
     useEffect(() => {
+        let savedStart = null;
+        try {
+            savedStart = localStorage.getItem("gymApp_session_start");
+        } catch (e) {
+            console.warn("Erro ao acessar localStorage", e);
+        }
+
+        let startTimestamp = Date.now();
+
+        if (savedStart) {
+            const diff = Math.floor((Date.now() - Number(savedStart)) / 1000);
+            setSeconds(diff);
+            setStartTime(Number(savedStart));
+            startTimestamp = Number(savedStart);
+        } else {
+            localStorage.setItem("gymApp_session_start", startTimestamp.toString());
+            setStartTime(startTimestamp);
+        }
+
+        const interval = setInterval(() => {
+            setSeconds(Math.floor((Date.now() - startTimestamp) / 1000));
+        }, 1000);
+
         const token = getToken();
         if (!token || !sessionId) return;
         const fetchData = async () => {
@@ -97,6 +121,7 @@ export default function CreateSessionWithTimer() {
         };
 
         fetchData();
+        return () => clearInterval(interval);
     }, [sessionId]);
 
 
@@ -309,6 +334,7 @@ export default function CreateSessionWithTimer() {
             await updateWorkoutSession(Number(sessionId), token, {
                 duration_seconds: seconds,
             });
+            localStorage.removeItem("gymApp_session_start");
             router.push(`/sessions/${sessionId}/edit`);
         } catch (err) {
             console.error("Erro ao finalizar sessão:", err);
