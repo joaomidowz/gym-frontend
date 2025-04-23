@@ -22,7 +22,7 @@ export default function SearchOverlay() {
 
   return (
     <>
-      <div className="flex justify-between items-center px-4 py-3 bg-secundary border-b border-primary">
+      <div className="flex justify-between items-center px-4 py-3 bg-secundary border-b border-gray-border">
         <h1 className="text-xl font-bold text-primary">Midowz Gym</h1>
         <button
           onClick={() => setIsOpen(true)}
@@ -54,7 +54,7 @@ export default function SearchOverlay() {
               value={query}
               onChange={(e) => setQuery(e.target.value)}
               onKeyDown={(e) => e.key === "Enter" && handleSearch()}
-              className="w-full p-3 rounded-xl border border-primary mb-4 text-white-txt bg-secundary focus:outline-none"
+              className="w-full p-3 rounded-xl border border-gray-border mb-4 text-white-txt bg-secundary focus:outline-none"
             />
 
             <div className="flex gap-2 mb-4">

@@ -9,7 +9,7 @@ interface Props {
 
 export default function ExerciseCard({ name, description, pr_weight, pr_reps }: Props) {
     return (
-        <div className="bg-white border border-primary rounded-2xl p-4 shadow-sm hover:shadow-md transition text-primary">
+        <div className="bg-white border border-gray-border rounded-2xl p-4 shadow-sm hover:shadow-md transition text-primary">
             <div className="flex items-center gap-2 mb-1">
                 <FaDumbbell className="text-primary" />
                 <h2 className="text-lg font-bold truncate">{name}</h2>

@@ -61,7 +61,7 @@ export default function SessionCardFeed({
   return (
     <div
       onClick={onClick}
-      className="relative bg-white border border-primary rounded-xl p-4 shadow mb-4 text-primary cursor-pointer hover:shadow-md transition group"
+      className="relative bg-white border border-gray-border rounded-xl p-4 shadow mb-4 text-primary cursor-pointer hover:shadow-md transition group"
     >
       <div className="text-sm flex items-center gap-1 mb-1">
         <FaUser className="text-xs" />

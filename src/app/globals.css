@@ -8,6 +8,7 @@
   --terciary: #39349C;
   --white: #ffffff;
   --white-txt: #ffffff;
+  --gray-border: #524BE0;
   --font-body: 'Atkinson Hyperlegible', sans-serif;
 }
 
@@ -18,7 +19,7 @@
   --primary: #524CDD;
   --secundary: #1f2937;
   --primary-light: #7D7DF9;
-  --border-dark: #374151;
+  --gray-border: #374151;
   --background-dark: #111827;
   --white: #1f2937;
 }
@@ -31,7 +32,7 @@
   --color-primary-light: var(--primary-light);
   --color-secundary: var(--secundary);
   --color-terciary: var(--terciary);
-  --color-border-dark: var(--border-dark);
+  --color-gray-border: var(--gray-border);
   --color-background-dark: var(--background-dark);
   --color-white: var(--white);
   --color-white-txt: var(--white-txt);

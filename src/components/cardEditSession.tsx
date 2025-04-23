@@ -41,7 +41,7 @@ export default function CardEditSession({
       initial={{ opacity: 0, y: 10 }}
       animate={{ opacity: 1, y: 0 }}
       exit={{ opacity: 0, x: -100 }}
-      className={`border-2 rounded-xl p-4 transition-all duration-300 ${allDone ? "border-green-500 bg-green-50" : "border-primary"
+      className={`border-2 rounded-xl p-4 transition-all duration-300 ${allDone ? "border-green-500 " : "border-gray-border"
         }`}
     >
       <div className="flex justify-between items-center mb-2">
