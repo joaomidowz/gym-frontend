@@ -58,24 +58,22 @@ export default function CreateSessionWithTimer() {
     const { id: sessionId } = useParams();
 
     useEffect(() => {
-        let savedStart = null;
+        let startTimestamp = Date.now();
+
         try {
-            savedStart = localStorage.getItem("gymApp_session_start");
+            const saved = localStorage.getItem("gymApp_session_start");
+            if (saved) {
+                startTimestamp = Number(saved);
+            } else {
+                localStorage.setItem("gymApp_session_start", startTimestamp.toString());
+            }
         } catch (e) {
             console.warn("Erro ao acessar localStorage", e);
         }
 
-        let startTimestamp = Date.now();
+        setStartTime(startTimestamp);
+        setSeconds(Math.floor((Date.now() - startTimestamp) / 1000));
 
-        if (savedStart) {
-            const diff = Math.floor((Date.now() - Number(savedStart)) / 1000);
-            setSeconds(diff);
-            setStartTime(Number(savedStart));
-            startTimestamp = Number(savedStart);
-        } else {
-            localStorage.setItem("gymApp_session_start", startTimestamp.toString());
-            setStartTime(startTimestamp);
-        }
 
         const interval = setInterval(() => {
             const saved = localStorage.getItem("gymApp_session_start");
@@ -130,18 +128,18 @@ export default function CreateSessionWithTimer() {
 
     useEffect(() => {
         const updateOnFocus = () => {
-          const saved = localStorage.getItem("gymApp_session_start");
-          if (saved) {
-            const diff = Math.floor((Date.now() - Number(saved)) / 1000);
-            setSeconds(diff);
-          }
+            const saved = localStorage.getItem("gymApp_session_start");
+            if (saved) {
+                const diff = Math.floor((Date.now() - Number(saved)) / 1000);
+                setSeconds(diff);
+            }
         };
-      
+
         window.addEventListener("app:focus", updateOnFocus);
         return () => {
-          window.removeEventListener("app:focus", updateOnFocus);
+            window.removeEventListener("app:focus", updateOnFocus);
         };
-      }, []);      
+    }, []);
 
     const debounceUpdateField = (field: "title" | "notes", value: string) => {
         const token = getToken();
