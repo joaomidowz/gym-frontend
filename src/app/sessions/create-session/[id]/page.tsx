@@ -127,19 +127,23 @@ export default function CreateSessionWithTimer() {
     }, [sessionId]);
 
     useEffect(() => {
-        const updateOnFocus = () => {
-            const saved = localStorage.getItem("gymApp_session_start");
-            if (saved) {
-                const diff = Math.floor((Date.now() - Number(saved)) / 1000);
-                setSeconds(diff);
-            }
-        };
+        const onBlur = () => {
+            localStorage.setItem("gymApp_session_last_seconds", seconds.toString())
+        }
 
-        window.addEventListener("app:focus", updateOnFocus);
+        const onFocus = () => {
+            const stored = localStorage.getItem("gymApp_session_last_seconds")
+            if (stored) setSeconds(Number(stored))
+        }
+
+        window.addEventListener("blur", onBlur)
+        window.addEventListener("focus", onFocus)
         return () => {
-            window.removeEventListener("app:focus", updateOnFocus);
-        };
-    }, []);
+            window.removeEventListener("blur", onBlur)
+            window.removeEventListener("focus", onFocus)
+        }
+    }, [seconds])
+
 
     const debounceUpdateField = (field: "title" | "notes", value: string) => {
         const token = getToken();
