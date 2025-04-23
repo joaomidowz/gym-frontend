@@ -53,16 +53,17 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
   useEffect(() => {
     const onFocus = () => {
-      const event = new CustomEvent("app:focus");
-      window.dispatchEvent(event);
+      if (window.matchMedia("(display-mode: standalone)").matches) {
+        window.location.reload()
+      }
     };
-  
+
     window.addEventListener("focus", onFocus);
     return () => {
       window.removeEventListener("focus", onFocus);
     };
   }, []);
-  
+
 
   useEffect(() => {
     if (pathname !== "/login" && pathname !== "/register") {
