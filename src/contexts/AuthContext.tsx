@@ -53,8 +53,14 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
   useEffect(() => {
     const onFocus = () => {
-      if (window.matchMedia("(display-mode: standalone)").matches) {
-        window.location.reload()
+      const isStandalone = window.matchMedia("(display-mode: standalone)").matches;
+      const path = window.location.pathname;
+      const isOnLogin = path === "/login" || path === "/register";
+      const isInSession = localStorage.getItem("session_active") === "true";
+
+      // 🔒 Só recarrega se não estiver em sessão
+      if (isStandalone && !isInSession && (path === "/" || isOnLogin)) {
+        window.location.reload();
       }
     };
 

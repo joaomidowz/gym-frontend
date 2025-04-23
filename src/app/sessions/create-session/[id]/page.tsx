@@ -58,6 +58,7 @@ export default function CreateSessionWithTimer() {
     const { id: sessionId } = useParams();
 
     useEffect(() => {
+        localStorage.setItem("session_active", "true");
         let startTimestamp = Date.now();
 
         try {
@@ -355,6 +356,7 @@ export default function CreateSessionWithTimer() {
                 duration_seconds: seconds,
             });
             localStorage.removeItem("gymApp_session_start");
+            localStorage.removeItem("session_active");
             router.push(`/sessions/${sessionId}/edit`);
         } catch (err) {
             console.error("Erro ao finalizar sessão:", err);
