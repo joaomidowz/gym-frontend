@@ -78,7 +78,11 @@ export default function CreateSessionWithTimer() {
         }
 
         const interval = setInterval(() => {
-            setSeconds(Math.floor((Date.now() - startTimestamp) / 1000));
+            const saved = localStorage.getItem("gymApp_session_start");
+            if (saved) {
+                const diff = Math.floor((Date.now() - Number(saved)) / 1000);
+                setSeconds(diff);
+            }
         }, 1000);
 
         const token = getToken();
