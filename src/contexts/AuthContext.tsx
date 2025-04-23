@@ -16,6 +16,7 @@ import {
   loginUser,
   registerUser
 } from "@/services/auth"
+import { usePathname, useRouter } from "next/navigation"
 
 // src/contexts/AuthContext.tsx
 type User = {
@@ -42,10 +43,32 @@ type AuthContextType = {
 
 export const AuthContext = createContext({} as AuthContextType)
 
+
 export function AuthProvider({ children }: { children: ReactNode }) {
   const [user, setUser] = useState<User | null>(null)
   const [token, setToken] = useState<string | null>(null)
   const [loading, setLoading] = useState(true)
+  const router = useRouter()
+  const pathname = usePathname()
+
+  useEffect(() => {
+    const onFocus = () => {
+      const event = new CustomEvent("app:focus");
+      window.dispatchEvent(event);
+    };
+  
+    window.addEventListener("focus", onFocus);
+    return () => {
+      window.removeEventListener("focus", onFocus);
+    };
+  }, []);
+  
+
+  useEffect(() => {
+    if (pathname !== "/login" && pathname !== "/register") {
+      localStorage.setItem("lastPath", pathname)
+    }
+  }, [pathname])
 
   async function login(email: string, password: string) {
     const { token } = await loginUser(email, password)
@@ -75,13 +98,21 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     if (storedToken) {
       setToken(storedToken)
       getLogedUser(storedToken)
-        .then(setUser)
+        .then((userData) => {
+          setUser(userData)
+
+          const lastPath = localStorage.getItem("lastPath")
+          if (lastPath && window.location.pathname === "/") {
+            router.replace(lastPath)
+          }
+        })
         .catch(() => logout())
         .finally(() => setLoading(false))
     } else {
       setLoading(false)
     }
   }, [])
+
 
   return (
     <AuthContext.Provider

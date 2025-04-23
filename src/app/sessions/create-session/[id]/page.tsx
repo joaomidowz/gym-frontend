@@ -128,6 +128,20 @@ export default function CreateSessionWithTimer() {
         return () => clearInterval(interval);
     }, [sessionId]);
 
+    useEffect(() => {
+        const updateOnFocus = () => {
+          const saved = localStorage.getItem("gymApp_session_start");
+          if (saved) {
+            const diff = Math.floor((Date.now() - Number(saved)) / 1000);
+            setSeconds(diff);
+          }
+        };
+      
+        window.addEventListener("app:focus", updateOnFocus);
+        return () => {
+          window.removeEventListener("app:focus", updateOnFocus);
+        };
+      }, []);      
 
     const debounceUpdateField = (field: "title" | "notes", value: string) => {
         const token = getToken();
