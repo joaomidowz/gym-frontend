@@ -22,6 +22,8 @@ export function TrainingDaysCalendar({ userId }: Props) {
     const [daysTrained, setDaysTrained] = useState<string[]>([]);
     const [currentMonth, setCurrentMonth] = useState(new Date());
 
+    const startWeekDay = startOfMonth(currentMonth).getDay();
+
     useEffect(() => {
         const fetchDays = async () => {
             const token = getToken();
@@ -87,23 +89,38 @@ export function TrainingDaysCalendar({ userId }: Props) {
                 ))}
             </div>
 
-            <div className="grid grid-cols-7 gap-2 text-center text-xs">
-                {daysInMonth.map((date) => {
-                    const formatted = format(date, "yyyy-MM-dd");
-                    const trained = daysTrained.includes(formatted);
+            {(() => {
+                const startWeekDay = startOfMonth(currentMonth).getDay();
+                const blanks = Array.from({ length: startWeekDay }, (_, i) => null);
+                const allDays = [...blanks, ...daysInMonth];
 
-                    return (
-                        <div
-                            key={formatted}
-                            title={format(date, "dd 'de' MMM", { locale: ptBR })}
-                            className={`w-8 h-8 rounded-md flex items-center justify-center ${trained ? "bg-green-500 text-white-txt" : "bg-white-100 text-gray-400"
-                                }`}
-                        >
-                            {date.getDate()}
-                        </div>
-                    );
-                })}
-            </div>
+                return (
+                    <div className="grid grid-cols-7 gap-2 text-center text-xs">
+                        {allDays.map((date, index) => {
+                            if (!date) {
+                                return <div key={`blank-${index}`} className="w-8 h-8" />;
+                            }
+
+                            const formatted = format(date, "yyyy-MM-dd");
+                            const trained = daysTrained.includes(formatted);
+
+                            return (
+                                <div
+                                    key={formatted}
+                                    title={format(date, "dd 'de' MMM", { locale: ptBR })}
+                                    className={`w-8 h-8 rounded-md flex items-center justify-center ${trained
+                                        ? "bg-green-500 text-white-txt"
+                                        : "bg-white-100 text-gray-400"
+                                        }`}
+                                >
+                                    {date.getDate()}
+                                </div>
+                            );
+                        })}
+                    </div>
+                );
+            })()}
+
         </div>
     );
 }
