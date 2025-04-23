@@ -40,7 +40,7 @@ export default function ExercisesPage() {
                 <h1 className="text-2xl font-bold text-primary">Meus Exercícios</h1>
                 <button
                     onClick={() => setShowCreate(true)}
-                    className="flex items-center gap-2 bg-primary text-white px-4 py-2 rounded-xl text-sm"
+                    className="flex items-center gap-2 bg-primary text-white-txt px-4 py-2 rounded-xl text-sm"
                 >
                     <FaPlus /> Novo Exercício
                 </button>

@@ -116,7 +116,7 @@ export default function CreateExerciseOverlay({ isOpen, onClose, onCreated }: Pr
             <button
               onClick={handleCreate}
               disabled={loading}
-              className="w-full bg-primary text-white py-2 rounded-xl text-sm"
+              className="w-full bg-primary text-white-txt py-2 rounded-xl text-sm"
             >
               {loading ? "Criando..." : "Criar Exercício"}
             </button>

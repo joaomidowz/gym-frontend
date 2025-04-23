@@ -14,6 +14,7 @@ import { EditProfileModal } from "./editProfileModal";
 import { SuccessToast } from "./successToast";
 import { useLogout } from "@/hooks/useLogout";
 import { TrainingDaysCalendar } from "@/components/trainingDaysCalendar";
+import { FaMoon, FaSun } from "react-icons/fa";
 
 type Props = {
     user: {
@@ -42,6 +43,7 @@ export function UserProfile({ user, isOwnProfile, sessionCount, streak }: Props)
     const [showToast, setShowToast] = useState(false);
     const [localUser, setLocalUser] = useState(user);
     const [isPublic, setIsPublic] = useState(user.is_public ?? true);
+    const [isDark, setIsDark] = useState(false);
 
     const token = getToken();
     const logout = useLogout();
@@ -94,9 +96,28 @@ export function UserProfile({ user, isOwnProfile, sessionCount, streak }: Props)
         loadUserList();
     }, [showModal]);
 
+    useEffect(() => {
+        const isDarkMode = document.documentElement.classList.contains("dark");
+        setIsDark(isDarkMode);
+    }, []);
+
+    const toggleTheme = () => {
+        const html = document.documentElement;
+        html.classList.toggle("dark");
+        setIsDark((prev) => !prev);
+    };
+
     return (
         <div className="p-4 pb-20 max-w-xl mx-auto">
             <div className="bg-white shadow rounded-2xl p-6 flex flex-col items-center">
+                <button
+                    onClick={toggleTheme}
+                    className="text-primary dark:text-primary-light text-xl p-2 hover:opacity-80 transition abs"
+                    title={isDark ? "Modo claro" : "Modo escuro"}
+                >
+                    {isDark ? <FaSun /> : <FaMoon />}
+                </button>
+
                 <div className="w-24 h-24 rounded-full border-4 border-primary mb-4 bg-primary/10 flex items-center justify-center text-xs text-primary">
                     Avatar
                 </div>
@@ -116,14 +137,14 @@ export function UserProfile({ user, isOwnProfile, sessionCount, streak }: Props)
                     <>
                         <button
                             onClick={() => setShowEditModal(true)}
-                            className="mt-4 px-4 py-2 bg-primary text-white text-sm rounded-xl hover:bg-primary/90 transition"
+                            className="mt-4 px-4 py-2 bg-primary text-white-txt text-sm rounded-xl hover:bg-primary/90 transition"
                         >
                             Editar perfil
                         </button>
 
                         <button
                             onClick={handleTogglePrivacy}
-                            className={`mt-2 px-4 py-2 rounded-xl text-sm font-medium transition-all ${isPublic ? "bg-green-500 text-white" : "bg-gray-400 text-white"}`}
+                            className={`mt-2 px-4 py-2 rounded-xl text-sm font-medium transition-all ${isPublic ? "bg-green-500 text-white-txt" : "bg-gray-400 text-white-txt"}`}
                         >
                             {isPublic ? "Perfil público" : "Perfil privado"}
                         </button>
@@ -190,7 +211,7 @@ export function UserProfile({ user, isOwnProfile, sessionCount, streak }: Props)
             <div className="flex flex-col items-center py-5">
                 <button
                     onClick={logout}
-                    className="mt-2 px-4 py-2 bg-red-500 text-white text-sm rounded-xl hover:bg-red-600 transition"
+                    className="mt-2 px-4 py-2 bg-red-500 text-white-txt text-sm rounded-xl hover:bg-red-600 transition"
                 >
                     Sair da conta
                 </button>

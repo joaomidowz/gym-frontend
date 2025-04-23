@@ -79,7 +79,7 @@ export default function SessionCardSessions({
             e.stopPropagation();
             onDelete();
           }}
-          className="absolute top-2 right-2 bg-red-500 text-white p-1 rounded-full hover:scale-110 transition"
+          className="absolute top-2 right-2 bg-red-500 text-white-txt p-1 rounded-full hover:scale-110 transition"
         >
           <FaTimes size={14} />
         </button>
@@ -123,7 +123,7 @@ export default function SessionCardSessions({
       </div>
 
       {createdAt && (
-        <div className="flex items-center gap-1 text-xs text-red-500 mb-2">
+        <div className="flex items-center gap-1 text-xs mb-2">
           <FaRegCalendarAlt />
           <span>{format(new Date(createdAt), "dd/MM/yyyy")}</span>
         </div>
@@ -153,7 +153,7 @@ export default function SessionCardSessions({
 
           <button
             onClick={handleEdit}
-            className="bg-primary text-white text-xs px-2 py-1 rounded hover:scale-105 transition flex items-center gap-1"
+            className="bg-primary text-white-txt text-xs px-2 py-1 rounded hover:scale-105 transition flex items-center gap-1"
           >
             <FaEdit size={12} /> Editar
           </button>

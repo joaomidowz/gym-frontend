@@ -91,7 +91,7 @@ export default function ExerciseSearch({ isOpen, onClose, onSelect }: Props) {
               <button
                 key={group}
                 className={`px-3 py-1 rounded-full text-sm border ${selectedGroup === group
-                    ? "bg-primary text-white"
+                    ? "bg-primary text-white-txt"
                     : "border-primary text-primary"
                   }`}
                 onClick={() =>
@@ -111,7 +111,7 @@ export default function ExerciseSearch({ isOpen, onClose, onSelect }: Props) {
               {results.map((ex: any) => (
                 <button
                   key={ex.id}
-                  className="block w-full text-left border border-primary rounded-xl p-3 hover:bg-primary hover:text-white transition"
+                  className="block w-full text-left border border-primary rounded-xl p-3 hover:bg-primary hover:text-white-txt transition"
                   onClick={() => {
                     onSelect(ex);
                     onClose();
@@ -127,7 +127,7 @@ export default function ExerciseSearch({ isOpen, onClose, onSelect }: Props) {
           
           <button
             onClick={() => setShowCreateOverlay(true)}
-            className="fixed bottom-15 right-5 bg-primary text-white w-14 h-14 rounded-full text-3xl shadow-xl z-[55] flex items-center justify-center cursor-pointer"
+            className="fixed bottom-15 right-5 bg-primary text-white-txt w-14 h-14 rounded-full text-3xl shadow-xl z-[55] flex items-center justify-center cursor-pointer"
           >
             +
           </button>

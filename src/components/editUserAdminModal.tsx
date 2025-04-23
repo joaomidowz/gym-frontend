@@ -131,7 +131,7 @@ export function EditUserAdminModal({
           </button>
           <button
             onClick={handleSave}
-            className="flex-1 bg-primary text-white py-2 rounded-xl text-sm"
+            className="flex-1 bg-primary text-white-txt py-2 rounded-xl text-sm"
             disabled={loading}
           >
             {loading ? "Salvando..." : "Salvar"}

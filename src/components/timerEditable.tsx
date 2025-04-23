@@ -55,7 +55,7 @@ export default function TimerEditable({ initialSeconds = 0, onChange }: TimerPro
         {running ? (
           <button
             onClick={() => setRunning(false)}
-            className="px-3 py-1 rounded bg-yellow-500 text-white"
+            className="px-3 py-1 rounded bg-yellow-500 text-white-txt"
           >
             ⏸ Pausar
           </button>

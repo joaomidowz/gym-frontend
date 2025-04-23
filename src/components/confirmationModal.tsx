@@ -29,7 +29,7 @@ type Props = {
             </button>
             <button
               onClick={onConfirm}
-              className="px-4 py-2 bg-red-500 text-white rounded-xl text-sm"
+              className="px-4 py-2 bg-red-500 text-white-txt rounded-xl text-sm"
             >
               Confirmar Exclusão
             </button>

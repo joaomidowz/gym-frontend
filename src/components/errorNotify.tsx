@@ -20,7 +20,7 @@ export default function ErrorNotify({ message }: Props) {
 
   return (
     <div
-      className="fixed bottom-5 left-1/2 -translate-x-1/2 bg-red-500 text-white px-4 py-2 rounded-xl shadow-lg text-sm z-[9999] cursor-pointer animate-fade-in"
+      className="fixed bottom-5 left-1/2 -translate-x-1/2 bg-red-500 text-white-txt px-4 py-2 rounded-xl shadow-lg text-sm z-[9999] cursor-pointer animate-fade-in"
       onClick={() => setVisible(false)}
     >
       {message}

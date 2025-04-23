@@ -86,7 +86,7 @@ export default function SessionComments({ sessionId }: Props) {
         />
         <button
           onClick={handleAddComment}
-          className="bg-primary text-white px-4 py-2 rounded-xl"
+          className="bg-primary text-white-txt px-4 py-2 rounded-xl"
         >
           Enviar
         </button>

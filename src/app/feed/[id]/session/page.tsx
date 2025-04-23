@@ -103,7 +103,7 @@ export default function ViewSessionPage() {
         </div>
         <button
           onClick={() => router.back()}
-          className="text-sm px-3 py-1 rounded-xl bg-gray-200 hover:bg-gray-300 transition"
+          className="text-sm px-3 py-1 rounded-xl bg-white-200 hover:bg-gray-300 transition"
         >
           Voltar
         </button>

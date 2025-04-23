@@ -48,7 +48,7 @@ export default function CardEditSession({
         <p className="font-semibold text-primary">{exerciseName}</p>
         <button
           onClick={onRemoveExercise}
-          className="bg-red-500 text-white p-1 rounded-full hover:scale-105 transition-all"
+          className="bg-red-500 text-white-txt p-1 rounded-full hover:scale-105 transition-all"
         >
           <X size={16} />
         </button>
@@ -105,14 +105,14 @@ export default function CardEditSession({
               <div className="flex justify-center items-center gap-2">
                 <button
                   onClick={() => onChange(idx, "done", !set.done)}
-                  className={`rounded-full w-7 h-7 flex items-center justify-center transition-all duration-200 ${set.done ? "bg-green-500 text-white" : "border-2 border-primary text-primary"}`}
+                  className={`rounded-full w-7 h-7 flex items-center justify-center transition-all duration-200 ${set.done ? "bg-green-500 text-white-txt" : "border-2 border-primary text-primary"}`}
                 >
                   {set.done ? <Check size={16} /> : null}
                 </button>
 
                 <motion.button
                   onClick={() => onRemoveSet(idx)}
-                  className="rounded-full w-7 h-7 flex items-center justify-center bg-red-500 text-white hover:scale-105 transition-all"
+                  className="rounded-full w-7 h-7 flex items-center justify-center bg-red-500 text-white-txt hover:scale-105 transition-all"
                   whileTap={{ scale: 0.85 }}
                 >
                   <X size={16} />

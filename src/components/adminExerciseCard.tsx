@@ -109,7 +109,7 @@ export default function AdminExerciseCard({ exercise, onUpdate }: {
                             Cancelar
                         </button>
                         <button
-                            className="flex-1 bg-primary text-white rounded-xl py-1"
+                            className="flex-1 bg-primary text-white-txt rounded-xl py-1"
                             onClick={handleSave}
                             disabled={loading}
                         >
@@ -127,13 +127,13 @@ export default function AdminExerciseCard({ exercise, onUpdate }: {
                     </p>
                     <div className="flex gap-2 mt-2">
                         <button
-                            className="flex-1 bg-primary text-white rounded-xl py-1"
+                            className="flex-1 bg-primary text-white-txt rounded-xl py-1"
                             onClick={() => setEditMode(true)}
                         >
                             Editar
                         </button>
                         <button
-                            className="flex-1 bg-red-500 text-white rounded-xl py-1"
+                            className="flex-1 bg-red-500 text-white-txt rounded-xl py-1"
                             onClick={handleDelete}
                         >
                             Excluir

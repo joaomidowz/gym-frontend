@@ -122,7 +122,7 @@ export function PublicUserProfile({ user, sessionCount, streak }: Props) {
                         onClick={handleFollowToggle}
                         disabled={loading || !token}
                         className={`mt-4 px-4 py-2 ${isFollowing ? "bg-red-500" : "bg-primary"
-                            } text-white text-sm rounded-xl hover:opacity-90 transition cursor-pointer`}
+                            } text-white-txt text-sm rounded-xl hover:opacity-90 transition cursor-pointer`}
                     >
                         {isFollowing ? "Deixar de seguir" : "Seguir"}
                     </button>

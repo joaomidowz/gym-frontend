@@ -120,7 +120,7 @@ export default function SessionCardFeed({
             className={`rounded-full w-7 h-7 flex items-center justify-center border transition ${isLiked ? "bg-red-500 text-white" : "bg-white border-primary text-primary"
               } hover:scale-105`}
           >
-            <FaHeart className={isLiked ? "text-white" : "text-red-500"} />
+            <FaHeart className={isLiked ? "text-white-txt" : "text-red-500"} />
           </button>
         )}
       </div>

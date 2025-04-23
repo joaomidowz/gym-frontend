@@ -96,7 +96,7 @@ export function TrainingDaysCalendar({ userId }: Props) {
                         <div
                             key={formatted}
                             title={format(date, "dd 'de' MMM", { locale: ptBR })}
-                            className={`w-8 h-8 rounded-md flex items-center justify-center ${trained ? "bg-green-500 text-white" : "bg-gray-100 text-gray-400"
+                            className={`w-8 h-8 rounded-md flex items-center justify-center ${trained ? "bg-green-500 text-white-txt" : "bg-white-100 text-gray-400"
                                 }`}
                         >
                             {date.getDate()}

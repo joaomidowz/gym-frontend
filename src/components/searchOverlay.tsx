@@ -54,19 +54,19 @@ export default function SearchOverlay() {
               value={query}
               onChange={(e) => setQuery(e.target.value)}
               onKeyDown={(e) => e.key === "Enter" && handleSearch()}
-              className="w-full p-3 rounded-xl border border-primary mb-4 text-primary bg-secundary focus:outline-none"
+              className="w-full p-3 rounded-xl border border-primary mb-4 text-white-txt bg-secundary focus:outline-none"
             />
 
             <div className="flex gap-2 mb-4">
               <button
-                className={`flex-1 p-2 rounded-xl ${type === "session" ? "bg-primary text-white" : "bg-white text-primary"
+                className={`flex-1 p-2 rounded-xl ${type === "session" ? "bg-primary text-white-txt" : "bg-white text-primary"
                   }`}
                 onClick={() => setType("session")}
               >
                 Sessões
               </button>
               <button
-                className={`flex-1 p-2 rounded-xl ${type === "user" ? "bg-primary text-white" : "bg-white text-primary"
+                className={`flex-1 p-2 rounded-xl ${type === "user" ? "bg-primary text-white-txt" : "bg-white text-primary"
                   }`}
                 onClick={() => setType("user")}
               >

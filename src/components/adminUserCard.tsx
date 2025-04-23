@@ -20,7 +20,7 @@ type Props = {
 export default function AdminUserCard({ user, onEdit, onDelete, onToggleAdmin }: Props) {
     return (
         <div className="bg-white rounded-2xl border border-primary shadow-md overflow-hidden">
-            <div className="bg-primary text-white px-4 py-2 flex justify-between items-center">
+            <div className="bg-primary text-white-txt px-4 py-2 flex justify-between items-center">
                 <span className="font-bold text-sm">ID: {user.id}</span>
                 <div className="flex items-center gap-2">
                     <span className="font-semibold text-sm truncate max-w-[100px]">{user.name}</span>
@@ -42,14 +42,14 @@ export default function AdminUserCard({ user, onEdit, onDelete, onToggleAdmin }:
                 <div className="flex gap-2 justify-end pt-4">
                     <button
                         onClick={onEdit}
-                        className="px-4 py-2 bg-green-500 text-white rounded-xl hover:bg-green-600 text-sm font-semibold"
+                        className="px-4 py-2 bg-green-500 text-white-txt rounded-xl hover:bg-green-600 text-sm font-semibold"
                     >
                         Editar
                     </button>
 
                     <button
                         onClick={() => onToggleAdmin && onToggleAdmin()}
-                        className={`p-2 text-white rounded-xl transition ${user.is_admin
+                        className={`p-2 text-white-txt rounded-xl transition ${user.is_admin
                             ? "bg-yellow-500 hover:bg-yellow-600"
                             : "bg-blue-500 hover:bg-blue-600"
                             }`}
@@ -61,7 +61,7 @@ export default function AdminUserCard({ user, onEdit, onDelete, onToggleAdmin }:
 
                     <button
                         onClick={onDelete}
-                        className="p-2 bg-red-500 text-white rounded-xl hover:bg-red-600"
+                        className="p-2 bg-red-500 text-white-txt rounded-xl hover:bg-red-600"
                         title="Excluir usuário"
                     >
                         <FaTrashAlt className="w-4 h-4" />

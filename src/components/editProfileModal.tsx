@@ -166,7 +166,7 @@ export function EditProfileModal({
           </button>
           <button
             onClick={handleSave}
-            className="flex-1 bg-primary text-white py-2 rounded-xl text-sm"
+            className="flex-1 bg-primary text-white-txt py-2 rounded-xl text-sm"
             disabled={loading}
           >
             {loading ? "Salvando..." : "Salvar"}
@@ -184,7 +184,7 @@ export function EditProfileModal({
             />
             <button
               onClick={handleDelete}
-              className="mt-2 w-full bg-red-500 text-white py-2 rounded-xl text-sm"
+              className="mt-2 w-full bg-red-500 text-white-txt py-2 rounded-xl text-sm"
             >
               Confirmar exclusão
             </button>
@@ -192,7 +192,7 @@ export function EditProfileModal({
         ) : (
           <button
             onClick={() => setConfirmDelete(true)}
-            className="mt-4 w-full bg-red-500 text-white py-2 rounded-xl text-sm"
+            className="mt-4 w-full bg-red-500 text-white-txt py-2 rounded-xl text-sm"
           >
             Excluir conta
           </button>

@@ -107,7 +107,7 @@ export default function SessionPage() {
                 <h1 className="text-2xl text-primary font-bold">Minhas Sessões</h1>
                 <button
                     onClick={() => router.push("sessions/create-session")}
-                    className="bg-primary text-white text-sm sm:text-base px-4 py-2 rounded-2xl hover:bg-primary/80 transition"
+                    className="bg-primary text-white-txt text-sm sm:text-base px-4 py-2 rounded-2xl hover:bg-primary/80 transition"
                 >
                     Criar sessão
                 </button>
